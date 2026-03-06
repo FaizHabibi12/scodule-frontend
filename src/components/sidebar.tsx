@@ -41,15 +41,7 @@ export default function Sidebar() {
                     className="group/sidebar flex flex-col shrink-0 lg:w-[300px] w-[250px] transition-all duration-300 ease-in-out m-0 fixed z-40 inset-y-0 left-0 bg-white border-r border-r-dashed border-r-neutral-200 sidenav fixed-start loopple-fixed-start"
                     id="sidenav-main"
                 >
-                    <div className="flex shrink-0 px-8 items-center justify-between h-[96px]">
-                        <a className="transition-colors duration-200 ease-in-out hover:opacity-80" href="https://www.loopple.com">
-                            <img
-                                alt="Logo"
-                                src="https://raw.githubusercontent.com/Loopple/loopple-public-assets/main/riva-dashboard-tailwind/img/logos/loopple.svg"
-                                className="inline"
-                            />
-                        </a>
-                    </div>
+
 
                     <div className="hidden border-b border-dashed lg:block dark:border-neutral-700/70 border-neutral-200" />
 
