@@ -1,14 +1,28 @@
+"use client";
+
+import { useState } from "react";
+
 type MenuItemProps = {
     label: string;
+    isActive?: boolean;
+    onClick?: () => void;
 };
 
-function MenuItem({ label }: MenuItemProps) {
+function MenuItem({ label, isActive = false, onClick }: MenuItemProps) {
     return (
         <div>
-            <span className="select-none flex items-center px-4 py-[.775rem] cursor-pointer my-[.4rem] rounded-[.95rem]">
+            <span
+                onClick={onClick}
+                className={`select-none flex items-center px-4 py-[.775rem] cursor-pointer my-[.4rem] rounded-[.95rem] transition-all duration-200 ${
+                    isActive
+                        ? "bg-blue-100 text-blue-700 font-semibold"
+                        : "text-stone-500 hover:bg-slate-100 hover:text-dark"
+                }`}
+            >
                 <a
                     href="#"
-                    className="flex items-center flex-grow text-[1.15rem] dark:text-neutral-400/75 text-stone-500 hover:text-dark"
+                    className="flex items-center grow text-[1.15rem]"
+                    onClick={(e) => e.preventDefault()}
                 >
                     {label}
                 </a>
@@ -18,6 +32,8 @@ function MenuItem({ label }: MenuItemProps) {
 }
 
 export default function Sidebar() {
+    const [activeMenu, setActiveMenu] = useState<string>("Dashboard");
+    const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
     return (
         <div className="bg-white">
             <div className="container flex flex-col mx-auto bg-white">
@@ -26,7 +42,7 @@ export default function Sidebar() {
                     id="sidenav-main"
                 >
                     <div className="flex shrink-0 px-8 items-center justify-between h-[96px]">
-                        <a className="transition-colors duration-200 ease-in-out" href="https://www.loopple.com">
+                        <a className="transition-colors duration-200 ease-in-out hover:opacity-80" href="https://www.loopple.com">
                             <img
                                 alt="Logo"
                                 src="https://raw.githubusercontent.com/Loopple/loopple-public-assets/main/riva-dashboard-tailwind/img/logos/loopple.svg"
@@ -39,11 +55,31 @@ export default function Sidebar() {
 
                     <div className="relative pl-3 my-5 overflow-y-scroll flex-1">
                         <div className="flex flex-col w-full font-medium">
-                            <MenuItem label="Dashboard" />
-                            <MenuItem label="Class Schedule" />
-                            <MenuItem label="List User" />
-                            <MenuItem label="List Subject" />
-                            <MenuItem label="List Class" />
+                            <MenuItem 
+                                label="Dashboard" 
+                                isActive={activeMenu === "Dashboard"}
+                                onClick={() => setActiveMenu("Dashboard")}
+                            />
+                            <MenuItem 
+                                label="Class Schedule" 
+                                isActive={activeMenu === "Class Schedule"}
+                                onClick={() => setActiveMenu("Class Schedule")}
+                            />
+                            <MenuItem 
+                                label="List User" 
+                                isActive={activeMenu === "List User"}
+                                onClick={() => setActiveMenu("List User")}
+                            />
+                            <MenuItem 
+                                label="List Subject" 
+                                isActive={activeMenu === "List Subject"}
+                                onClick={() => setActiveMenu("List Subject")}
+                            />
+                            <MenuItem 
+                                label="List Class" 
+                                isActive={activeMenu === "List Class"}
+                                onClick={() => setActiveMenu("List Class")}
+                            />
 
                             <div className="block pt-5 pb-[.15rem]">
                                 <div className="px-4 py-[.65rem]">
@@ -53,58 +89,82 @@ export default function Sidebar() {
                                 </div>
                             </div>
 
-                            <MenuItem label="Settings" />
-                            <MenuItem label="Log out" />
+                            <MenuItem 
+                                label="Settings" 
+                                isActive={activeMenu === "Settings"}
+                                onClick={() => setActiveMenu("Settings")}
+                            />
+                            <MenuItem 
+                                label="Log out" 
+                                isActive={activeMenu === "Log out"}
+                                onClick={() => setActiveMenu("Log out")}
+                            />
                         </div>
                     </div>
 
                     <div className="hidden border-b border-dashed lg:block dark:border-neutral-700/70 border-neutral-200" />
 
-                    <div className="flex items-center justify-between px-8 py-5 mt-auto">
-                        <div className="flex items-center mr-5">
-                            <div className="mr-5">
-                                <div className="inline-block relative shrink-0 cursor-pointer rounded-[.95rem]">
-                                    <img
-                                        className="w-[40px] h-[40px] shrink-0 inline-block rounded-[.95rem]"
-                                        src="https://raw.githubusercontent.com/Loopple/loopple-public-assets/main/riva-dashboard-tailwind/img/avatars/avatar1.jpg"
-                                        alt="avatar image"
-                                    />
+                    <div className="relative mt-auto">
+                        <button
+                            onClick={() => setShowProfileMenu(!showProfileMenu)}
+                            className="flex w-full items-center justify-between px-8 py-5 transition-all duration-200 hover:bg-slate-50"
+                        >
+                            <div className="flex items-center mr-5">
+                                <div className="mr-5">
+                                    <div className="inline-block relative shrink-0 cursor-pointer rounded-[.95rem] transition-transform duration-200 hover:scale-105">
+                                        <img
+                                            className="w-[40px] h-[40px] shrink-0 inline-block rounded-[.95rem]"
+                                            src="https://raw.githubusercontent.com/Loopple/loopple-public-assets/main/riva-dashboard-tailwind/img/avatars/avatar1.jpg"
+                                            alt="avatar image"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="mr-2">
+                                    <a
+                                        href="#"
+                                        className="dark:hover:text-primary hover:text-primary transition-colors duration-200 ease-in-out text-[1.075rem] font-medium dark:text-neutral-400/90 text-secondary-inverse"
+                                        onClick={(e) => e.preventDefault()}
+                                    >
+                                        Ahmad Haidar El Haq
+                                    </a>
+                                    <span className="text-secondary-dark dark:text-stone-500 font-medium block text-[0.85rem]">
+                                        Super Admin
+                                    </span>
                                 </div>
                             </div>
-                            <div className="mr-2">
-                                <a
-                                    href="#"
-                                    className="dark:hover:text-primary hover:text-primary transition-colors duration-200 ease-in-out text-[1.075rem] font-medium dark:text-neutral-400/90 text-secondary-inverse"
-                                >
-                                    Ahmad Haidar El Haq
-                                </a>
-                                <span className="text-secondary-dark dark:text-stone-500 font-medium block text-[0.85rem]">
-                                    Super Admin
-                                </span>
-                            </div>
-                        </div>
-                        <a
-                            className="inline-flex relative items-center group justify-end text-base font-medium leading-normal text-center align-middle cursor-pointer rounded-[.95rem] transition-colors duration-150 ease-in-out text-dark bg-transparent shadow-none border-0"
-                            href="#"
-                        >
-                            <span className="leading-none transition-colors duration-200 ease-in-out peer shrink-0 group-hover:text-primary text-secondary-dark">
+                            <span className={`leading-none transition-all duration-300 peer shrink-0 group-hover:text-primary text-secondary-dark ${
+                                showProfileMenu ? "rotate-180" : ""
+                            }`}>
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     strokeWidth="1.5"
                                     stroke="currentColor"
-                                    className="w-6 h-6"
+                                    className="w-5 h-5"
                                 >
                                     <path
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
-                                        d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"
+                                        d="M19.5 8.25l-7.5 7.5-7.5-7.5"
                                     />
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
                             </span>
-                        </a>
+                        </button>
+
+                        {showProfileMenu && (
+                            <div className="absolute bottom-full left-0 right-0 mb-2 rounded-lg bg-white border border-slate-200 shadow-lg z-50">
+                                <button className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors rounded-t-lg">
+                                    Profile
+                                </button>
+                                <button className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors">
+                                    Preferences
+                                </button>
+                                <button className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors rounded-b-lg">
+                                    Logout
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </aside>
             </div>
