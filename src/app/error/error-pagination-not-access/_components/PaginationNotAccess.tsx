@@ -13,8 +13,8 @@ const IMAGE_SIZE = {
 
 export default function ErrorPaginationNotAccess() {
     return (
-        <div className="w-full">
-            <div className="flex flex-col items-center justify-center h-screen gap-6">
+        <section className="w-full">
+            <div className="flex flex-col items-center justify-center min-h-screen gap-6">
                 <div className="relative mb-10">
                     <Image
                         src={ImageStatus}
@@ -46,14 +46,14 @@ export default function ErrorPaginationNotAccess() {
                     />
                 </div>
                 <div className="flex flex-col items-center gap-8 text-center">
-                    <h1 className="text-5xl font-semibold text-[#18181B]">Tidak Dapat Mengakses Halaman</h1>
-                    <p className="text-[#71717B]">Akses terbatas atau tidak tersedia, kami mohon maaf atas ketidaknyamanan ini.</p>
-                    <Link href="/dashboard" className="bg-[#FF9B51] text-white flex items-center py-2 px-4 rounded-full text-base gap-1.5">
+                    <h1 className="text-5xl font-semibold text-text-primary">Tidak Dapat Mengakses Halaman</h1>
+                    <p className="text-muted">Akses terbatas atau tidak tersedia, kami mohon maaf atas ketidaknyamanan ini.</p>
+                    <Link href="/dashboard" className="bg-primary text-white flex items-center py-2 px-4 rounded-full text-base gap-1.5">
                         Kembali ke Beranda
                         <FaArrowRightLong className="w-6 h-6" />
                     </Link>
                 </div>
             </div>
-        </div>
+        </section>
     );
 }

@@ -10,6 +10,9 @@
   --color-foreground: var(--foreground);
   --font-sans: "General Sans", "Segoe UI", sans-serif;
   --font-mono: var(--font-geist-mono);
+  --color-primary: #FF9B51;
+  --color-foreground: #18181B;
+  --color-muted: #71717B;
 }
 
 @media (prefers-color-scheme: dark) {

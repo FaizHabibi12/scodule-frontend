@@ -14,8 +14,8 @@ const IMAGE_SIZE = {
 
 export default function ErrorPaginationNotFound() {
     return (
-        <div className="w-full">
-            <div className="flex flex-col items-center justify-center h-screen gap-6">
+        <section>
+            <div className="flex flex-col items-center justify-center min-h-screen gap-6">
                 <div className="relative mb-10">
                     <Image
                         src={ImageStatus}
@@ -47,14 +47,14 @@ export default function ErrorPaginationNotFound() {
                     />
                 </div>
                 <div className="flex flex-col items-center gap-8 text-center">
-                    <h1 className="text-5xl font-semibold text-[#18181B]">Halaman Tidak Ditemukan</h1>
-                    <p className="text-[#71717B]">Harap kembali ke beranda kami, kami mohon maaf atas ketidaknyamanan ini.</p>
-                    <Link href="/dashboard" className="bg-[#FF9B51] text-white flex items-center py-2 px-4 rounded-full text-base gap-1.5">
+                    <h1 className="text-5xl font-semibold text-foreground">Halaman Tidak Ditemukan</h1>
+                    <p className="text-muted">Harap kembali ke beranda kami, kami mohon maaf atas ketidaknyamanan ini.</p>
+                    <Link href="/dashboard" className="bg-pri text-white flex items-center py-2 px-4 rounded-full text-base gap-1.5">
                         Kembali ke Beranda
                         <FaArrowRightLong className="w-6 h-6" />
                     </Link>
                 </div>
             </div>
-        </div>
+        </section>
     );
 }
