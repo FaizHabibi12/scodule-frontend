@@ -13,7 +13,7 @@ const IMAGE_SIZE = {
 
 export default function ErrorPaginationNotAccess() {
     return (
-        <section className="w-full">
+        <section>
             <div className="flex flex-col items-center justify-center min-h-screen gap-6">
                 <div className="relative mb-10">
                     <Image

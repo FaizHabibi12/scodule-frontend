@@ -18,7 +18,7 @@ export default function AppShell({ children }: AppShellProps) {
   return (
     <div className="min-h-screen bg-white">
       <Sidebar />
-      <main className="pl-[260px]">{children}</main>
+      <main className="pl-65">{children}</main>
     </div>
   );
 }

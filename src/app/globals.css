@@ -13,6 +13,7 @@
   --color-primary: #FF9B51;
   --color-foreground: #18181B;
   --color-muted: #71717B;
+  --color-baseBlue: #25343F;
 }
 
 @media (prefers-color-scheme: dark) {

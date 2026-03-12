@@ -36,9 +36,9 @@ export default function Sidebar() {
     return (
         <aside
             id="sidenav-main"
-            className="fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col overflow-hidden border-r border-slate-200 bg-[#e3e3e5]"
+            className="fixed inset-y-0 left-0 z-40 flex w-65 flex-col overflow-hidden border-r border-slate-200 bg-[#e3e3e5]"
         >
-            <div className="relative h-[180px] w-full overflow-hidden bg-[#f79a50]">
+            <div className="relative h-45 w-full overflow-hidden bg-[#f79a50]">
                 <button
                     className="absolute right-4 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-slate-500 shadow-sm transition hover:bg-white"
                     aria-label="Toggle sidebar"
@@ -48,7 +48,7 @@ export default function Sidebar() {
                     </svg>
                 </button>
 
-                <div className="absolute -bottom-1 left-0 h-[110px] w-[115%] -translate-x-[10%] rounded-[58%] bg-[#e3e3e5]" />
+                <div className="absolute -bottom-1 left-0 h-27.5 w-[115%] -translate-x-[10%] rounded-[58%] bg-[#e3e3e5]" />
             </div>
 
             <div className="flex-1 overflow-y-auto px-5 pb-5 pt-4">
