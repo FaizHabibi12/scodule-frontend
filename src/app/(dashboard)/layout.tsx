@@ -1,4 +1,4 @@
-import HeaderContent from "@/src/components/header-content";
+import HeaderContent from "@/src/components/common/header-content";
 import { ReactNode } from "react";
 import { Toaster } from "sonner";
 

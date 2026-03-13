@@ -80,7 +80,7 @@ export default function DaftarUserManagement() {
   };
 
   return (
-    <section className="min-h-[calc(100vh-7rem)] bg-[#eef0f0] px-6 pb-8">
+    <section className="min-h-[calc(100vh-7rem)] bg-[#eef0f0] px-12 mt-6 pb-8">
       <div className="mx-auto w-full max-w-7xl">
         <div className="mb-5 flex items-center justify-between">
           <h1 className="text-[2rem] font-semibold text-[#1e1e1e]">Daftar Pelajar</h1>
@@ -203,7 +203,7 @@ export default function DaftarUserManagement() {
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
               className="flex h-12 w-12 items-center justify-center rounded-full bg-baseBlue text-white transition disabled:cursor-not-allowed disabled:opacity-40"
-            >
+>
               <IoChevronForwardOutline className="text-xl" />
             </button>
           </div>

@@ -1,9 +1,6 @@
 import { LuLayoutDashboard } from "react-icons/lu";
 import { LuUsers } from "react-icons/lu";
 import { LuChartPie } from "react-icons/lu";
-import { MdOutlineAddChart } from "react-icons/md";
-import { GoGear } from "react-icons/go";
-import { BiLogOut } from "react-icons/bi";
 
 export const SIDEBAR_MENU_LIST = {
     admin: [
@@ -11,16 +8,27 @@ export const SIDEBAR_MENU_LIST = {
             title: 'Dashboard',
             url: '/admin',
             icon: LuLayoutDashboard,
+            exact: true,
         },
         {
             title: 'Jadwal Kelas',
-            url: '/order',
+            url: '/jadwal-kelas',
             icon: LuChartPie,
         },
         {
             title: 'Daftar User',
             url: '/admin/daftar-user',
             icon: LuUsers,
+            children: [
+                {
+                    title: 'Pelajar',
+                    url: '/admin/daftar-user/pelajar',
+                },
+                {
+                    title: 'Tentor',
+                    url: '/admin/daftar-user/tentor',
+                },
+            ],
         },
         {
             title: 'Daftar Kelas',
@@ -38,6 +46,7 @@ export const SIDEBAR_MENU_LIST = {
             title: 'Dashboard',
             url: '/student/dashboard',
             icon: LuLayoutDashboard,
+            exact: true,
         },
     ],
     teacher: [
@@ -50,6 +59,7 @@ export const SIDEBAR_MENU_LIST = {
             title: 'Dashboard',
             url: '/teacher/dashboard',
             icon: LuLayoutDashboard,
+            exact: true,
         },
     ],
 };

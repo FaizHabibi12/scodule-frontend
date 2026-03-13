@@ -30,7 +30,7 @@ const Search = ({ search, onSearchChange }: Props) => {
             id="keyword"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            className="text-base rounded-lg w-full text-muted py-2.5 px-5 border border-gray-300 focus:outline-none"
+            className="text-base rounded-2xl shadow w-full text-muted py-2.5 px-5 focus:outline-none bg-white"
             placeholder="Cari mapel..."
             onKeyUp={handleSearch}
             aria-label="Cari"

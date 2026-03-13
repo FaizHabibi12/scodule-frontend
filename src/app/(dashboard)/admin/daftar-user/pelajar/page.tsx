@@ -1,4 +1,4 @@
-import DaftarUserManagement from "../_components/daftar-user";
+import DaftarUserManagement from "./_components/daftar-user";
 
 export const metadata = {
   title: "Scodule | Daftar Pelajar Management",
