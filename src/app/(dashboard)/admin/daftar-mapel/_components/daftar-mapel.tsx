@@ -36,8 +36,6 @@ export default function DaftarMapelManagement() {
     });
 
     const fetchSubjects = useCallback(async () => {
-        console.log('🔄 Fetching all subjects...');
-
         setIsLoading(true);
         try {
             const { data, error } = await apiRequest('/subjects');

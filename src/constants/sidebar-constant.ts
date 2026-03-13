@@ -1,6 +1,8 @@
 import { LuLayoutDashboard } from "react-icons/lu";
 import { LuUsers } from "react-icons/lu";
 import { LuChartPie } from "react-icons/lu";
+import { LuCalendarCheck } from "react-icons/lu";
+import { LuNotebookPen } from "react-icons/lu";
 
 export const SIDEBAR_MENU_LIST = {
     admin: [
@@ -13,7 +15,7 @@ export const SIDEBAR_MENU_LIST = {
         {
             title: 'Jadwal Kelas',
             url: '/jadwal-kelas',
-            icon: LuChartPie,
+            icon: LuCalendarCheck,
         },
         {
             title: 'Daftar User',
@@ -33,12 +35,12 @@ export const SIDEBAR_MENU_LIST = {
         {
             title: 'Daftar Kelas',
             url: '/admin/daftar-kelas',
-            icon: LuLayoutDashboard,
+            icon: LuChartPie,
         },
         {
             title: 'Daftar Mapel',
             url: '/admin/daftar-mapel',
-            icon: LuUsers,
+            icon: LuNotebookPen,
         },
     ],
     student: [

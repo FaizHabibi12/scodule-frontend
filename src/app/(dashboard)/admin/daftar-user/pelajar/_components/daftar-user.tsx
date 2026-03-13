@@ -83,7 +83,7 @@ export default function DaftarUserManagement() {
     <section className="min-h-[calc(100vh-7rem)] bg-[#eef0f0] px-12 mt-6 pb-8">
       <div className="mx-auto w-full max-w-7xl">
         <div className="mb-5 flex items-center justify-between">
-          <h1 className="text-[2rem] font-semibold text-[#1e1e1e]">Daftar Pelajar</h1>
+          <h5 className="text-2xl font-semibold text-[#1e1e1e]">Daftar Pelajar</h5>
         </div>
 
         <div className="rounded-3xl bg-white px-6 py-6 shadow-[0_12px_40px_rgba(37,52,63,0.08)]">

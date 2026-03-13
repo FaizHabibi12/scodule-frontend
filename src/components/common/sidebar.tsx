@@ -185,7 +185,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                     <div className="mt-2 space-y-1">
                         <MenuItem
                             label="Pengaturan"
-                            href="#"
+                            href="/pengaturan"
                             icon={
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                                     <path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" stroke="currentColor" strokeWidth="1.7" />
