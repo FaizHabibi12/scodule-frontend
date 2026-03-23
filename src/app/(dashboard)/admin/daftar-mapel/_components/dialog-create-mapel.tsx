@@ -12,7 +12,7 @@ import FormMapel from "./form-mapel";
 export default function DialogCreateMapel({
     refetch,
     open,
-    onClose
+    onClose  
 }: {
     refetch: () => void;
     open: boolean;

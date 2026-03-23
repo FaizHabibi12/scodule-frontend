@@ -3,6 +3,41 @@ export const API_CONFIG = {
     token: process.env.NEXT_PUBLIC_API_TOKEN || '',
 };
 
+function buildUrl(endpoint: string): string {
+    const base = API_CONFIG.baseURL.replace(/\/$/, '');
+    const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    return `${base}${path}`;
+}
+
+function toSingularFirstSegment(endpoint: string): string {
+    const parts = endpoint.split('?');
+    const pathOnly = parts[0];
+    const query = parts[1] ? `?${parts[1]}` : '';
+
+    const segments = pathOnly.split('/');
+    const firstIndex = segments.findIndex((segment) => segment.length > 0);
+
+    if (firstIndex === -1) {
+        return endpoint;
+    }
+
+    const firstSegment = segments[firstIndex];
+    if (firstSegment.endsWith('s') && firstSegment.length > 1) {
+        segments[firstIndex] = firstSegment.slice(0, -1);
+        return `${segments.join('/')}${query}`;
+    }
+
+    return endpoint;
+}
+
+async function parseJsonResponse(response: Response): Promise<any> {
+    try {
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
 export function validateAPIConfig(): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
@@ -34,7 +69,7 @@ export async function apiRequest<T = any>(
     }
 
     try {
-        const url = `${API_CONFIG.baseURL}${endpoint}`;
+        const url = buildUrl(endpoint);
 
         console.log('API Request:', {
             url,
@@ -43,7 +78,7 @@ export async function apiRequest<T = any>(
             timestamp: new Date().toISOString(),
         });
 
-        const response = await fetch(url, {
+        let response = await fetch(url, {
             ...options,
             headers: {
                 'Content-Type': 'application/json',
@@ -62,17 +97,48 @@ export async function apiRequest<T = any>(
             },
         });
 
-        let result;
-        try {
-            result = await response.json();
-            console.log('API Response Data:', result);
-        } catch (parseError) {
-            console.error('Failed to parse JSON response:', parseError);
+        let result = await parseJsonResponse(response);
+
+        const isRouteNotFound =
+            response.status === 404 &&
+            typeof result?.message === 'string' &&
+            result.message.toLowerCase().includes('route') &&
+            result.message.toLowerCase().includes('could not be found');
+
+        if (isRouteNotFound) {
+            const fallbackEndpoint = toSingularFirstSegment(endpoint);
+
+            if (fallbackEndpoint !== endpoint) {
+                const fallbackUrl = buildUrl(fallbackEndpoint);
+
+                console.warn('Retrying API request with singular endpoint:', {
+                    originalEndpoint: endpoint,
+                    fallbackEndpoint,
+                    fallbackUrl,
+                });
+
+                response = await fetch(fallbackUrl, {
+                    ...options,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_CONFIG.token}`,
+                        'Accept': 'application/json',
+                        ...options.headers,
+                    },
+                });
+
+                result = await parseJsonResponse(response);
+            }
+        }
+
+        if (result === null) {
             return {
                 data: null,
                 error: 'Server returned invalid JSON response',
             };
         }
+
+        console.log('API Response Data:', result);
 
         if (!response.ok) {
             const errorMessage = result.error || result.message || `HTTP ${response.status}: ${response.statusText}`;
