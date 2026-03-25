@@ -48,7 +48,7 @@ export default function ErrorPaginationNotAccess() {
                 <div className="flex flex-col items-center gap-8 text-center">
                     <h1 className="text-5xl font-semibold text-text-primary">Tidak Dapat Mengakses Halaman</h1>
                     <p className="text-muted">Akses terbatas atau tidak tersedia, kami mohon maaf atas ketidaknyamanan ini.</p>
-                    <Link href="/dashboard" className="bg-primary text-white flex items-center py-2 px-4 rounded-full text-base gap-1.5">
+                    <Link href="/login" className="bg-primary text-white flex items-center py-2 px-4 rounded-full text-base gap-1.5">
                         Kembali ke Beranda
                         <FaArrowRightLong className="w-6 h-6" />
                     </Link>

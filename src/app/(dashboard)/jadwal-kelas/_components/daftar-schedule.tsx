@@ -2,10 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { IoArrowBack } from "react-icons/io5";
 import { MdEdit, MdDownload } from "react-icons/md";
 import { FiPlus } from "react-icons/fi";
-import { apiRequest } from "@/src/lib/api-client";
 import DialogSelectScheduleType from "./dialog-select-schedule-type";
 import DialogCreateSchedule from "./dialog-create-schedule";
 
@@ -196,6 +194,7 @@ export default function DaftarSchedule() {
     const [currentWeek, setCurrentWeek] = useState(1);
     const [schedules, setSchedules] = useState<ScheduleApiRecord[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [openSelectType, setOpenSelectType] = useState(false);
     const [openCreateDialog, setOpenCreateDialog] = useState(false);
     const [selectedScheduleType, setSelectedScheduleType] = useState<"regular" | "private">(
@@ -218,6 +217,17 @@ export default function DaftarSchedule() {
         fetchSchedules();
     }, [fetchSchedules]);
 
+    useEffect(() => {
+        const roleCookie = document.cookie
+            .split(";")
+            .map((cookie) => cookie.trim())
+            .find((cookie) => cookie.startsWith("user_role="))
+            ?.split("=")[1];
+
+        const role = roleCookie ? decodeURIComponent(roleCookie) : "";
+        setIsAdmin(role === "admin");
+    }, []);
+
     // Group schedules by session and day
     const scheduleGrid: ScheduleGrid = schedules.reduce((acc, schedule) => {
         const sessionId = schedule.session_id;
@@ -234,84 +244,89 @@ export default function DaftarSchedule() {
         .sort((a, b) => a - b);
 
     const handleCreateClick = () => {
+        if (!isAdmin) {
+            return;
+        }
+
         setOpenSelectType(true);
     };
 
     const handleTypeSelect = (type: "regular" | "private") => {
+        if (!isAdmin) {
+            return;
+        }
+
         setSelectedScheduleType(type);
         setOpenCreateDialog(true);
     };
 
     const handleExport = () => {
+        if (!isAdmin) {
+            return;
+        }
+
         toast.info("Export belum tersedia", { description: "Endpoint export belum tersedia di backend." });
     };
 
     return (
         <section className="min-h-[calc(100vh-7rem)] bg-[#f0f0f0] px-12 py-6">
             <div className="mx-auto w-full max-w-7xl">
-                {/* Breadcrumb */}
-                <div className="mb-6 flex items-center gap-2 text-sm text-slate-600">
-                    <button className="flex items-center gap-1 rounded-full bg-orange-100 px-3 py-1 text-orange-600 transition hover:bg-orange-200">
-                        <IoArrowBack className="text-base" />
-                        Kembali
-                    </button>
-                </div>
 
-                {/* Header */}
                 <div className="mb-6 flex items-center justify-between">
                     <div>
                         <p className="text-sm text-slate-600">Jadwal Pelajaran/Kelas {className}</p>
                         <h1 className="text-4xl font-bold text-slate-900">
-                            Jadwal <span className="text-orange-500">Kelas {className}</span>
+                            Jadwal <span className="text-primary">Kelas {className}</span>
                         </h1>
                     </div>
 
-                    <div className="flex gap-3">
-                        <button
-                            type="button"
-                            onClick={handleCreateClick}
-                            className="flex items-center gap-2 rounded-full bg-orange-500 px-6 py-2 text-sm font-medium text-white transition hover:bg-orange-600"
-                        >
-                            <FiPlus className="text-lg" />
-                            Create
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setOpenSelectType(true)}
-                            className="flex items-center gap-2 rounded-full bg-orange-500 px-6 py-2 text-sm font-medium text-white transition hover:bg-orange-600"
-                        >
-                            <MdEdit className="text-lg" />
-                            Edit
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleExport}
-                            className="flex items-center gap-2 rounded-full bg-orange-500 px-6 py-2 text-sm font-medium text-white transition hover:bg-orange-600"
-                        >
-                            <MdDownload className="text-lg" />
-                            Export
-                        </button>
-                    </div>
-                </div>
-
-                {/* Week Tabs */}
-                <div className="mb-6 flex gap-3">
-                    {WEEKS.map((week) => (
-                        <button
-                            key={week}
-                            onClick={() => setCurrentWeek(week)}
-                            className={`rounded-2xl px-8 py-3 font-medium transition ${currentWeek === week
-                                    ? "bg-orange-500 text-white"
-                                    : "bg-orange-100 text-orange-600 hover:bg-orange-200"
-                                }`}
-                        >
-                            Week {week}
-                        </button>
-                    ))}
+                    {isAdmin && (
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={handleCreateClick}
+                                className="flex items-center gap-2 rounded-full bg-primary px-6 py-2 text-sm font-medium text-white transition hover:bg-primary/90">
+                                <FiPlus className="text-lg" />
+                                Create
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setOpenSelectType(true)}
+                                className="flex items-center gap-2 rounded-full bg-primary px-6 py-2 text-sm font-medium text-white transition hover:bg-primary/90">
+                                <MdEdit className="text-lg" />
+                                Edit
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleExport}
+                                className="flex items-center gap-2 rounded-full bg-primary px-6 py-2 text-sm font-medium text-white transition hover:bg-primary/90">
+                                <MdDownload className="text-lg" />
+                                Export
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Schedule Table Card */}
                 <div className="rounded-2xl bg-white p-6 shadow-lg">
+
+                    <div className="w-full">
+                        <div className="mb-6 flex gap-3">
+                            {WEEKS.map((week) => (
+                                <button
+                                    key={week}
+                                    onClick={() => setCurrentWeek(week)}
+                                    className={`rounded-xl w-full py-4 font-normal text-lg transition ${currentWeek === week
+                                        ? "bg-primary text-white"
+                                        : "bg-orange-100 text-primary"
+                                        }`}>
+                                    Week {week}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+
                     {isLoading ? (
                         <div className="py-12 text-center text-slate-500">Memuat jadwal...</div>
                     ) : sessions.length === 0 ? (
@@ -327,8 +342,7 @@ export default function DaftarSchedule() {
                                         {DAYS.map((day) => (
                                             <th
                                                 key={day}
-                                                className="border border-slate-300 px-4 py-3 text-center text-sm font-medium"
-                                            >
+                                                className="border border-slate-300 px-4 py-3 text-center text-sm font-medium">
                                                 {DAYS_DISPLAY[day]}
                                             </th>
                                         ))}
@@ -354,8 +368,7 @@ export default function DaftarSchedule() {
                                                     return (
                                                         <td
                                                             key={`${sessionId}-${day}`}
-                                                            className="border border-slate-300 p-3 text-center"
-                                                        >
+                                                            className="border border-slate-300 p-3 text-center">
                                                             {schedule ? (
                                                                 <div className="rounded-lg bg-blue-100 p-3">
                                                                     <div className="font-medium text-blue-900">
@@ -383,18 +396,22 @@ export default function DaftarSchedule() {
                 </div>
             </div>
 
-            <DialogSelectScheduleType
-                open={openSelectType}
-                onClose={() => setOpenSelectType(false)}
-                onSelect={handleTypeSelect}
-            />
+            {isAdmin && (
+                <DialogSelectScheduleType
+                    open={openSelectType}
+                    onClose={() => setOpenSelectType(false)}
+                    onSelect={handleTypeSelect}
+                />
+            )}
 
-            <DialogCreateSchedule
-                open={openCreateDialog}
-                onClose={() => setOpenCreateDialog(false)}
-                onSuccess={fetchSchedules}
-                scheduleType={selectedScheduleType}
-            />
+            {isAdmin && (
+                <DialogCreateSchedule
+                    open={openCreateDialog}
+                    onClose={() => setOpenCreateDialog(false)}
+                    onSuccess={fetchSchedules}
+                    scheduleType={selectedScheduleType}
+                />
+            )}
         </section>
     );
 }
