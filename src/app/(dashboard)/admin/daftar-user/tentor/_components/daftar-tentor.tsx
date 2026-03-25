@@ -13,7 +13,9 @@ import DialogDeleteTentor from "./dialog-delete-tentor";
 import DialogUpdateTentor from "./dialog-update-tentor";
 
 const ITEMS_PER_PAGE = 6;
+const EDGE_VISIBLE_PAGES = 4;
 const SKILL_OPTIONS = ["Semua Keahlian", "Matematika", "Fisika", "Biologi", "Kimia", "Bahasa Inggris", "Informatika"];
+type PaginationItem = number | "ellipsis";
 
 export default function DaftarTentorManagement() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -80,9 +82,29 @@ export default function DaftarTentorManagement() {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const currentMentors = filteredMentors.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-    const pages = useMemo(() => {
-        return Array.from({ length: totalPages }, (_, index) => index + 1);
-    }, [totalPages]);
+    const pages = useMemo<PaginationItem[]>(() => {
+        if (totalPages <= EDGE_VISIBLE_PAGES + 1) {
+            return Array.from({ length: totalPages }, (_, index) => index + 1);
+        }
+
+        if (currentPage <= EDGE_VISIBLE_PAGES) {
+            return [
+                ...Array.from({ length: EDGE_VISIBLE_PAGES }, (_, index) => index + 1),
+                "ellipsis",
+                totalPages,
+            ];
+        }
+
+        if (currentPage >= totalPages - (EDGE_VISIBLE_PAGES - 1)) {
+            return [
+                1,
+                "ellipsis",
+                ...Array.from({ length: EDGE_VISIBLE_PAGES }, (_, index) => totalPages - EDGE_VISIBLE_PAGES + index + 1),
+            ];
+        }
+
+        return [1, "ellipsis", currentPage - 1, currentPage, currentPage + 1, "ellipsis", totalPages];
+    }, [currentPage, totalPages]);
 
     const handlePageChange = (page: number) => {
         if (page < 1 || page > totalPages) {
@@ -288,25 +310,33 @@ export default function DaftarTentorManagement() {
                             title="Halaman sebelumnya"
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="flex h-12 w-12 items-center justify-center rounded-full bg-baseBlue text-white transition disabled:cursor-not-allowed disabled:opacity-40"
-                        >
+                            className="flex h-12 w-12 items-center justify-center rounded-full bg-baseBlue text-white transition disabled:cursor-not-allowed disabled:opacity-40">
                             <IoChevronBackOutline className="text-xl" />
                         </button>
 
                         <div className="flex items-center gap-5 text-sm text-slate-400">
-                            {pages.map((page) => (
-                                <button
-                                    key={page}
-                                    type="button"
-                                    onClick={() => handlePageChange(page)}
-                                    className={`flex h-8 w-8 items-center justify-center rounded-full transition ${currentPage === page
+                            {pages.map((page, index) => {
+                                if (page === "ellipsis") {
+                                    return (
+                                        <span key={`ellipsis-${index}`} className="text-slate-400">
+                                            ...
+                                        </span>
+                                    );
+                                }
+
+                                return (
+                                    <button
+                                        key={page}
+                                        type="button"
+                                        onClick={() => handlePageChange(page)}
+                                        className={`flex h-8 w-8 items-center justify-center rounded-full transition ${currentPage === page
                                             ? "border border-baseBlue text-baseBlue"
                                             : "text-slate-400 hover:text-slate-600"
-                                        }`}
-                                >
-                                    {String(page).padStart(2, "0")}
-                                </button>
-                            ))}
+                                            }`}>
+                                        {String(page).padStart(2, "0")}
+                                    </button>
+                                );
+                            })}
                         </div>
 
                         <button

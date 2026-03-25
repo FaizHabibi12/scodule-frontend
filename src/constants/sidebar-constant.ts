@@ -46,15 +46,20 @@ export const SIDEBAR_MENU_LIST = {
     student: [
         {
             title: 'Dashboard',
-            url: '/student/dashboard',
+            url: '/student',
             icon: LuLayoutDashboard,
             exact: true,
+        },
+        {
+            title: 'Jadwal Kelas',
+            url: '/jadwal-kelas',
+            icon: LuCalendarCheck,
         },
     ],
     teacher: [
         {
             title: 'Jadwal Kelas',
-            url: '/teacher/jadwal-kelas',
+            url: '/jadwal-kelas',
             icon: LuChartPie,
         },
         {

@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
-import { SIDEBAR_MENU_LIST } from "@/src/constants/sidebar-constant";
+import { SIDEBAR_MENU_LIST, SidebarMenuKey } from "@/src/constants/sidebar-constant";
 import Image from "next/image";
+import { logout } from "@/src/app/(auth)/login/actions";
+import { toast } from "sonner";
 
 type MenuItemProps = {
     label: string;
@@ -62,7 +64,10 @@ function MenuItem({ label, icon, href, isActive = false, isCollapsed = false }: 
 
 export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
     const pathname = usePathname();
-    const adminMenuList = SIDEBAR_MENU_LIST.admin as SidebarMenu[];
+    const router = useRouter();
+    const [isLoggingOut, startLogoutTransition] = useTransition();
+    const [currentRole, setCurrentRole] = useState<SidebarMenuKey>("admin");
+    const roleMenuList = (SIDEBAR_MENU_LIST[currentRole] ?? SIDEBAR_MENU_LIST.admin) as SidebarMenu[];
     const [isDaftarUserOpen, setIsDaftarUserOpen] = useState(pathname.startsWith("/admin/daftar-user"));
 
     const isMenuActive = (url: string, exact = false) => {
@@ -74,10 +79,48 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
     };
 
     useEffect(() => {
+        const roleCookie = document.cookie
+            .split(";")
+            .map((cookie) => cookie.trim())
+            .find((cookie) => cookie.startsWith("user_role="))
+            ?.split("=")[1];
+
+        if (!roleCookie) {
+            return;
+        }
+
+        const parsedRole = decodeURIComponent(roleCookie) as SidebarMenuKey;
+
+        if (parsedRole in SIDEBAR_MENU_LIST) {
+            setCurrentRole(parsedRole);
+        }
+    }, []);
+
+    useEffect(() => {
         if (pathname.startsWith("/admin/daftar-user")) {
             setIsDaftarUserOpen(true);
         }
     }, [pathname]);
+
+    const handleLogout = () => {
+        startLogoutTransition(async () => {
+            const result = await logout();
+
+            if (!result.success) {
+                toast.error("Logout gagal", {
+                    description: result.message,
+                });
+                return;
+            }
+
+            toast.success("Logout berhasil");
+
+            setTimeout(() => {
+                router.push("/login");
+                router.refresh();
+            }, 500);
+        });
+    };
 
     return (
         <aside
@@ -101,7 +144,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 <div className="min-h-0">
                     {isOpen && <p className="px-3 text-sm text-slate-500 transition-opacity duration-300">Menu Utama</p>}
                     <div className="mt-3 space-y-1">
-                        {adminMenuList.map((menu) => {
+                        {roleMenuList.map((menu) => {
                             const Icon = menu.icon;
                             const childMenus = menu.children ?? [];
                             const isSubmenu = childMenus.length > 0;
@@ -196,18 +239,26 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                             isCollapsed={!isOpen}
                         />
 
-                        <MenuItem
-                            label="Logout"
-                            href="#"
-                            icon={
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            disabled={isLoggingOut}
+                            title={!isOpen ? "Logout" : undefined}
+                            aria-label={!isOpen ? "Logout" : undefined}
+                            className={`group relative flex w-full items-center rounded-xl px-3 py-2.5 text-left transition-all duration-300 ease-out ${!isOpen ? "justify-center" : "gap-3"} text-slate-500 hover:bg-white/50 hover:text-slate-700 hover:shadow-[0_6px_18px_rgba(148,163,184,0.1)] disabled:cursor-not-allowed disabled:opacity-70`}>
+                            <span className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 transition-all duration-300 ease-out group-hover:bg-white/70 group-hover:text-slate-700">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                                     <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
                                     <path d="M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
                                 </svg>
-                            }
-                            isActive={false}
-                            isCollapsed={!isOpen}
-                        />
+                            </span>
+                            {isOpen && (
+                                <span className="grow text-[0.98rem] transition-all duration-300">
+                                    {isLoggingOut ? "Memproses..." : "Logout"}
+                                </span>
+                            )}
+                            {!isOpen && <HoverTooltip label={isLoggingOut ? "Memproses..." : "Logout"} />}
+                        </button>
                     </div>
                 </div>
 

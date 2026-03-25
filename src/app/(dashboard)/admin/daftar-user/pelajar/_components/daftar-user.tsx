@@ -13,6 +13,8 @@ import DialogUpdatePelajar from "./dialog-update-pelajar";
 import DialogDeletePelajar from "./dialog-delete-pelajar";
 
 const ITEMS_PER_PAGE = 6;
+const EDGE_VISIBLE_PAGES = 4;
+type PaginationItem = number | "ellipsis";
 
 export default function DaftarUserManagement() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -76,9 +78,29 @@ export default function DaftarUserManagement() {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const currentUsers = filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-    const pages = useMemo(() => {
-        return Array.from({ length: totalPages }, (_, index) => index + 1);
-    }, [totalPages]);
+    const pages = useMemo<PaginationItem[]>(() => {
+        if (totalPages <= EDGE_VISIBLE_PAGES + 1) {
+            return Array.from({ length: totalPages }, (_, index) => index + 1);
+        }
+
+        if (currentPage <= EDGE_VISIBLE_PAGES) {
+            return [
+                ...Array.from({ length: EDGE_VISIBLE_PAGES }, (_, index) => index + 1),
+                "ellipsis",
+                totalPages,
+            ];
+        }
+
+        if (currentPage >= totalPages - (EDGE_VISIBLE_PAGES - 1)) {
+            return [
+                1,
+                "ellipsis",
+                ...Array.from({ length: EDGE_VISIBLE_PAGES }, (_, index) => totalPages - EDGE_VISIBLE_PAGES + index + 1),
+            ];
+        }
+
+        return [1, "ellipsis", currentPage - 1, currentPage, currentPage + 1, "ellipsis", totalPages];
+    }, [currentPage, totalPages]);
 
     const handlePageChange = (page: number) => {
         if (page < 1 || page > totalPages) {
@@ -267,19 +289,29 @@ export default function DaftarUserManagement() {
                         </button>
 
                         <div className="flex items-center gap-5 text-sm text-slate-400">
-                            {pages.map((page) => (
-                                <button
-                                    key={page}
-                                    type="button"
-                                    onClick={() => handlePageChange(page)}
-                                    className={`flex h-8 w-8 items-center justify-center rounded-full transition ${currentPage === page
+                            {pages.map((page, index) => {
+                                if (page === "ellipsis") {
+                                    return (
+                                        <span key={`ellipsis-${index}`} className="text-slate-400">
+                                            ...
+                                        </span>
+                                    );
+                                }
+
+                                return (
+                                    <button
+                                        key={page}
+                                        type="button"
+                                        onClick={() => handlePageChange(page)}
+                                        className={`flex h-8 w-8 items-center justify-center rounded-full transition ${currentPage === page
                                             ? "border border-baseBlue text-baseBlue"
                                             : "text-slate-400 hover:text-slate-600"
-                                        }`}
-                                >
-                                    {String(page).padStart(2, "0")}
-                                </button>
-                            ))}
+                                            }`}
+                                    >
+                                        {String(page).padStart(2, "0")}
+                                    </button>
+                                );
+                            })}
                         </div>
 
                         <button
