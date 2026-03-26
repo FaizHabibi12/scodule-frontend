@@ -147,7 +147,6 @@ export default function DaftarTentorManagement() {
             const response = await fetch(`${API_CONFIG.baseURL}/admin/import/teachers`, {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${API_CONFIG.token}`,
                     Accept: "application/json",
                 },
                 body: formData,

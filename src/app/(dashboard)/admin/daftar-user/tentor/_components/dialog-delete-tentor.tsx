@@ -31,7 +31,6 @@ export default function DialogDeleteTentor({
             const response = await fetch(`${API_CONFIG.baseURL}/admin/teachers/${currentData.id}`, {
                 method: "DELETE",
                 headers: {
-                    Authorization: `Bearer ${API_CONFIG.token}`,
                     Accept: "application/json",
                 },
             });

@@ -2,6 +2,23 @@
 
 import { createMapelSchema, updateMapelSchema } from "@/src/validations/mapel-validation";
 import { MapelFormState } from "@/src/types/mapel";
+import { cookies } from "next/headers";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
+async function getAuthorizedHeaders(isJsonRequest: boolean = false): Promise<HeadersInit> {
+    const token = (await cookies()).get("auth_token")?.value;
+
+    if (!token) {
+        throw new Error("Token tidak ditemukan. Silakan login ulang.");
+    }
+
+    return {
+        ...(isJsonRequest ? { "Content-Type": "application/json" } : {}),
+        "Accept": "application/json",
+        "Authorization": `Bearer ${token}`,
+    };
+}
 
 export async function createMapel(prevState: MapelFormState, formData: FormData): Promise<MapelFormState> {
     const name = formData.get("name");
@@ -36,13 +53,19 @@ export async function createMapel(prevState: MapelFormState, formData: FormData)
         };
     }
 
+    if (!API_BASE_URL) {
+        return {
+            status: "error",
+            errors: {
+                _form: ["NEXT_PUBLIC_API_URL belum diatur."],
+            }
+        };
+    }
+
     try {
-        const subjectResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subjects`, {
+        const subjectResponse = await fetch(`${API_BASE_URL}/subjects`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-            },
+            headers: await getAuthorizedHeaders(true),
             body: JSON.stringify({
                 name: validatedFields.data.name,
             }),
@@ -61,12 +84,9 @@ export async function createMapel(prevState: MapelFormState, formData: FormData)
 
         if (validatedFields.data.subSubjects && validatedFields.data.subSubjects.length > 0) {
             const subSubjectPromises = validatedFields.data.subSubjects.map(async (subSubject) => {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sub-subjects`, {
+                const response = await fetch(`${API_BASE_URL}/sub-subjects`, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-                    },
+                    headers: await getAuthorizedHeaders(true),
                     body: JSON.stringify({
                         subject_id: subjectData.data.id,
                         name: subSubject.name,
@@ -146,13 +166,19 @@ export async function updateMapel(prevState: MapelFormState, formData: FormData)
         };
     }
 
+    if (!API_BASE_URL) {
+        return {
+            status: "error",
+            errors: {
+                _form: ["NEXT_PUBLIC_API_URL belum diatur."],
+            }
+        };
+    }
+
     try {
-        const subjectResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subjects/${id}`, {
+        const subjectResponse = await fetch(`${API_BASE_URL}/subjects/${id}`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-            },
+            headers: await getAuthorizedHeaders(true),
             body: JSON.stringify({
                 name: validatedFields.data.name,
             }),
@@ -171,11 +197,9 @@ export async function updateMapel(prevState: MapelFormState, formData: FormData)
 
         if (subSubjectsToDelete && subSubjectsToDelete.length > 0) {
             const deletePromises = subSubjectsToDelete.map(async (subSubjectId: any) => {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sub-subjects/${subSubjectId}`, {
+                const response = await fetch(`${API_BASE_URL}/sub-subjects/${subSubjectId}`, {
                     method: "DELETE",
-                    headers: {
-                        "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-                    },
+                    headers: await getAuthorizedHeaders(),
                 });
 
                 if (!response.ok) {
@@ -192,12 +216,9 @@ export async function updateMapel(prevState: MapelFormState, formData: FormData)
         if (validatedFields.data.subSubjects && validatedFields.data.subSubjects.length > 0) {
             const subSubjectPromises = validatedFields.data.subSubjects.map(async (subSubject) => {
                 if (subSubject.id) {
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sub-subjects/${subSubject.id}`, {
+                    const response = await fetch(`${API_BASE_URL}/sub-subjects/${subSubject.id}`, {
                         method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-                        },
+                        headers: await getAuthorizedHeaders(true),
                         body: JSON.stringify({
                             subject_id: id,
                             name: subSubject.name,
@@ -211,12 +232,9 @@ export async function updateMapel(prevState: MapelFormState, formData: FormData)
 
                     return response.json();
                 } else {
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sub-subjects`, {
+                    const response = await fetch(`${API_BASE_URL}/sub-subjects`, {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-                        },
+                        headers: await getAuthorizedHeaders(true),
                         body: JSON.stringify({
                             subject_id: id,
                             name: subSubject.name,
@@ -251,12 +269,19 @@ export async function updateMapel(prevState: MapelFormState, formData: FormData)
 export async function deleteMapel(prevState: MapelFormState, formData: FormData): Promise<MapelFormState> {
     const id = formData.get("id");
 
+    if (!API_BASE_URL) {
+        return {
+            status: "error",
+            errors: {
+                _form: ["NEXT_PUBLIC_API_URL belum diatur."],
+            }
+        };
+    }
+
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subjects/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/subjects/${id}`, {
             method: "DELETE",
-            headers: {
-                "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-            },
+            headers: await getAuthorizedHeaders(),
         });
 
         const data = await response.json();

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { apiRequest, API_CONFIG } from "@/src/lib/api-client";
+import { apiRequest } from "@/src/lib/api-client";
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 export type ScheduleFormData = {
@@ -195,7 +195,6 @@ export default function DialogCreateSchedule({
             const { error } = await apiRequest("/admin/schedules", {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${API_CONFIG.token}`,
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(formData),

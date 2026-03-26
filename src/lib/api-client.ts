@@ -1,6 +1,5 @@
 export const API_CONFIG = {
-    baseURL: process.env.NEXT_PUBLIC_API_URL || '',
-    token: process.env.NEXT_PUBLIC_API_TOKEN || '',
+    baseURL: '/api/backend',
 };
 
 function buildUrl(endpoint: string): string {
@@ -41,12 +40,8 @@ async function parseJsonResponse(response: Response): Promise<any> {
 export function validateAPIConfig(): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
-    if (!API_CONFIG.baseURL) {
+    if (!process.env.NEXT_PUBLIC_API_URL) {
         errors.push('NEXT_PUBLIC_API_URL is not set in environment variables');
-    }
-
-    if (!API_CONFIG.token) {
-        errors.push('NEXT_PUBLIC_API_TOKEN is not set in environment variables');
     }
 
     return {
@@ -74,18 +69,20 @@ export async function apiRequest<T = any>(
         console.log('API Request:', {
             url,
             method: options.method || 'GET',
-            hasToken: !!API_CONFIG.token,
             timestamp: new Date().toISOString(),
         });
 
+        const isFormDataBody = typeof FormData !== 'undefined' && options.body instanceof FormData;
+
+        const requestHeaders = {
+            ...(isFormDataBody ? {} : { 'Content-Type': 'application/json' }),
+            'Accept': 'application/json',
+            ...options.headers,
+        };
+
         let response = await fetch(url, {
             ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_CONFIG.token}`,
-                'Accept': 'application/json',
-                ...options.headers,
-            },
+            headers: requestHeaders,
         });
 
         console.log('API Response Status:', {
@@ -119,12 +116,7 @@ export async function apiRequest<T = any>(
 
                 response = await fetch(fallbackUrl, {
                     ...options,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_CONFIG.token}`,
-                        'Accept': 'application/json',
-                        ...options.headers,
-                    },
+                    headers: requestHeaders,
                 });
 
                 result = await parseJsonResponse(response);

@@ -50,7 +50,6 @@ export default function DialogUpdatePelajar({
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${API_CONFIG.token}`,
                     Accept: "application/json",
                 },
                 body: JSON.stringify({

@@ -138,7 +138,6 @@ export default function DaftarUserManagement() {
             const response = await fetch(`${API_CONFIG.baseURL}/admin/import/students`, {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${API_CONFIG.token}`,
                     Accept: "application/json",
                 },
                 body: formData,

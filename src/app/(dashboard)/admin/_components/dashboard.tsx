@@ -17,13 +17,15 @@ type PaginatedResponse<T> = {
     };
 };
 
-type SubjectResponse = {
-    data?: {
-        data?: Array<{ id: number }>;
-    } | Array<{ id: number }>;
-};
-
 export default function DashboardPage() {
+
+    type SubjectResponse = {
+        data?: {
+            data?: Array<{ id: number }>;
+        } | Array<{ id: number }>;
+    };
+
+
     const [summary, setSummary] = useState<DashboardSummary>({
         totalTeacher: 0,
         totalStudent: 0,
