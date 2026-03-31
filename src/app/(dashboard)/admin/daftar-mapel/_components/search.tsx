@@ -1,6 +1,6 @@
 "use client"
 
-import { KeyboardEvent, useState, useEffect } from "react"
+import { type KeyboardEvent, useState, useEffect } from "react"
 
 type Props = {
     url: string,
@@ -15,8 +15,22 @@ const Search = ({ search, onSearchChange }: Props) => {
         setKeyword(search)
     }, [search])
 
-    const handleSearch = (e: KeyboardEvent<HTMLInputElement>) => {
+    useEffect(() => {
+        const debounceId = setTimeout(() => {
+            const trimmedKeyword = keyword.trim()
+            if (trimmedKeyword === search.trim()) return
+            if (onSearchChange) {
+                onSearchChange(trimmedKeyword)
+            }
+        }, 300)
+
+        return () => clearTimeout(debounceId)
+    }, [keyword, onSearchChange, search])
+
+    const handleEnterSearch = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key !== "Enter") return
+        e.preventDefault()
+
         const trimmedKeyword = keyword.trim()
         if (trimmedKeyword === search.trim()) return
         if (onSearchChange) {
@@ -32,7 +46,7 @@ const Search = ({ search, onSearchChange }: Props) => {
             onChange={(e) => setKeyword(e.target.value)}
             className="text-base rounded-2xl shadow w-full text-muted py-2.5 px-5 focus:outline-none bg-white"
             placeholder="Cari mapel..."
-            onKeyUp={handleSearch}
+            onKeyUp={handleEnterSearch}
             aria-label="Cari"
         />
     )

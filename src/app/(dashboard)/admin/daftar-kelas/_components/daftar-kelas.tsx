@@ -1,22 +1,27 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { Subject } from "@/src/types/kelas"; // Pastikan tipe ini sesuai atau kamu ubah
 import { apiRequest } from "@/src/lib/api-client";
+import { DEFAULT_PAGE } from "@/src/constants/data-table-constant";
 import DialogCreateKelas from "./dialog-create-kelas";
 import DialogUpdateKelas from "./dialog-update-kelas";
 import DialogDeleteKelas from "./dialog-delete-kelas";
 import Search from "./search";
 import { CiSearch } from "react-icons/ci";
 import { TbLayoutGridAdd } from "react-icons/tb";
+import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
+
+const ITEMS_PER_PAGE = 6;
+const EDGE_VISIBLE_PAGES = 4;
+type PaginationItem = number | "ellipsis";
 
 export default function DaftarKelasManagement() {
     const [kelasList, setKelasList] = useState<any[]>([]); // Ubah tipe sesuai kebutuhan
     const [isLoading, setIsLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [limit] = useState(10); // Bisa dibuat dinamis nanti
+    const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);
 
     const [dialogState, setDialogState] = useState<{
         create: boolean;
@@ -40,8 +45,8 @@ export default function DaftarKelasManagement() {
                 return;
             }
 
-            const kelasData = data?.data && Array.isArray(data.data) 
-                ? data.data 
+            const kelasData = data?.data && Array.isArray(data.data)
+                ? data.data
                 : Array.isArray(data) ? data : [];
 
             setKelasList(kelasData);
@@ -81,7 +86,7 @@ export default function DaftarKelasManagement() {
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
-        setCurrentPage(1);
+        setCurrentPage(DEFAULT_PAGE);
     };
 
     // Filter berdasarkan search
@@ -94,15 +99,40 @@ export default function DaftarKelasManagement() {
         );
     });
 
-    // Pagination
-    const totalPages = Math.ceil(filteredKelas.length / limit);
-    const startIndex = (currentPage - 1) * limit;
-    const paginatedKelas = filteredKelas.slice(startIndex, startIndex + limit);
+    const totalPages = Math.max(1, Math.ceil(filteredKelas.length / ITEMS_PER_PAGE));
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const currentKelas = filteredKelas.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+    const pages = useMemo<PaginationItem[]>(() => {
+        if (totalPages <= EDGE_VISIBLE_PAGES + 1) {
+            return Array.from({ length: totalPages }, (_, index) => index + 1);
+        }
+
+        if (currentPage <= EDGE_VISIBLE_PAGES) {
+            return [
+                ...Array.from({ length: EDGE_VISIBLE_PAGES }, (_, index) => index + 1),
+                "ellipsis",
+                totalPages,
+            ];
+        }
+
+        if (currentPage >= totalPages - (EDGE_VISIBLE_PAGES - 1)) {
+            return [
+                1,
+                "ellipsis",
+                ...Array.from({ length: EDGE_VISIBLE_PAGES }, (_, index) => totalPages - EDGE_VISIBLE_PAGES + index + 1),
+            ];
+        }
+
+        return [1, "ellipsis", currentPage - 1, currentPage, currentPage + 1, "ellipsis", totalPages];
+    }, [currentPage, totalPages]);
 
     const handlePageChange = (page: number) => {
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
+        if (page < 1 || page > totalPages) {
+            return;
         }
+
+        setCurrentPage(page);
     };
 
     return (
@@ -111,7 +141,7 @@ export default function DaftarKelasManagement() {
                 {/* Header */}
                 <div className="flex flex-col mt-6 gap-4 w-full">
                     <h5 className="text-2xl font-medium text-black">Daftar Kelas</h5>
-                    
+
                     <div className="flex justify-between items-center">
                         <div className="w-[30%] relative">
                             <Search
@@ -136,7 +166,7 @@ export default function DaftarKelasManagement() {
                 </div>
 
                 {/* Tabel */}
-                <div className="bg-white rounded-lg shadow overflow-hidden">
+                <div className="bg-white rounded-lg px-6 py-6 mb-10 shadow overflow-hidden">
                     <table className="min-w-full">
                         <thead className="bg-[#23323d] text-white">
                             <tr>
@@ -154,16 +184,16 @@ export default function DaftarKelasManagement() {
                                         Loading...
                                     </td>
                                 </tr>
-                            ) : paginatedKelas.length === 0 ? (
+                            ) : currentKelas.length === 0 ? (
                                 <tr>
                                     <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                                        {searchQuery 
-                                            ? `Tidak ada kelas yang cocok dengan "${searchQuery}"` 
+                                        {searchQuery
+                                            ? `Tidak ada kelas yang cocok dengan "${searchQuery}"`
                                             : "Tidak ada data kelas"}
                                     </td>
                                 </tr>
                             ) : (
-                                paginatedKelas.map((kelas, index) => (
+                                currentKelas.map((kelas, index) => (
                                     <tr key={kelas.id || index} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 text-sm text-center font-medium">
                                             {String(startIndex + index + 1).padStart(2, "0")}
@@ -198,32 +228,55 @@ export default function DaftarKelasManagement() {
                             )}
                         </tbody>
                     </table>
+                    <div className="mt-8 flex items-center justify-between px-2">
+                        <button
+                            type="button"
+                            title="Halaman sebelumnya"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="flex h-12 w-12 items-center justify-center rounded-full bg-baseBlue text-white transition disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            <IoChevronBackOutline className="text-xl" />
+                        </button>
+
+                        <div className="flex items-center gap-5 text-sm text-slate-400">
+                            {pages.map((page, index) => {
+                                if (page === "ellipsis") {
+                                    return (
+                                        <span key={`ellipsis-${index}`} className="text-slate-400">
+                                            ...
+                                        </span>
+                                    );
+                                }
+
+                                return (
+                                    <button
+                                        key={page}
+                                        type="button"
+                                        onClick={() => handlePageChange(page)}
+                                        className={`flex h-8 w-8 items-center justify-center rounded-full transition ${currentPage === page
+                                            ? "border border-baseBlue text-baseBlue"
+                                            : "text-slate-400 hover:text-slate-600"
+                                            }`}
+                                    >
+                                        {String(page).padStart(2, "0")}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <button
+                            type="button"
+                            title="Halaman berikutnya"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="flex h-12 w-12 items-center justify-center rounded-full bg-baseBlue text-white transition disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            <IoChevronForwardOutline className="text-xl" />
+                        </button>
+                    </div>
                 </div>
 
-                {/* Pagination (sederhana) */}
-                {totalPages > 1 && (
-                    <div className="flex justify-between items-center mt-4">
-                        <p className="text-sm text-gray-600">
-                            Menampilkan {startIndex + 1}–{Math.min(startIndex + limit, filteredKelas.length)} dari {filteredKelas.length} data
-                        </p>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={currentPage === 1}
-                                className="px-4 py-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Sebelumnya
-                            </button>
-                            <button
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                                className="px-4 py-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Berikutnya
-                            </button>
-                        </div>
-                    </div>
-                )}
             </div>
 
             {/* Dialogs */}
