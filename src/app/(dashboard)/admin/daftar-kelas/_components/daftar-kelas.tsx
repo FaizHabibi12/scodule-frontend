@@ -166,68 +166,70 @@ export default function DaftarKelasManagement() {
                 </div>
 
                 {/* Tabel */}
-                <div className="bg-white rounded-lg px-6 py-6 mb-10 shadow overflow-hidden">
-                    <table className="min-w-full">
-                        <thead className="bg-[#23323d] text-white">
-                            <tr>
-                                <th className="px-6 py-4 text-left font-medium w-17">NO</th>
-                                <th className="px-6 py-4 text-left font-medium">Nama Kelas</th>
-                                <th className="px-6 py-4 text-left font-medium">Tipe Kelas</th>
-                                <th className="px-6 py-4 text-center font-medium">Jumlah Siswa</th>
-                                <th className="px-6 py-4 text-center font-medium w-40">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            {isLoading ? (
+                <div className="rounded-3xl bg-white p-3 shadow-[0_12px_40px_rgba(37,52,63,0.08)]">
+                    <div className="overflow-hidden rounded-[18px] border border-[#d9d9d9] bg-white">
+                        <table className="min-w-full border-separate border-spacing-0">
+                            <thead className="bg-[#23323d] text-white">
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                                        Loading...
-                                    </td>
+                                    <th className="px-3 py-4 border-r-4 text-sm text-center font-medium w-15">NO</th>
+                                    <th className="px-3 py-4 border-r-4 text-left text-sm font-medium">Nama Kelas</th>
+                                    <th className="px-3 py-4 border-r-4 text-left text-sm font-medium">Tipe Kelas</th>
+                                    <th className="px-3 py-4 border-r-4 text-left text-sm font-medium">Jumlah Siswa</th>
+                                    <th className="px-3 py-4 border-r-4 text-left text-sm font-medium w-20">Action</th>
                                 </tr>
-                            ) : currentKelas.length === 0 ? (
-                                <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                                        {searchQuery
-                                            ? `Tidak ada kelas yang cocok dengan "${searchQuery}"`
-                                            : "Tidak ada data kelas"}
-                                    </td>
-                                </tr>
-                            ) : (
-                                currentKelas.map((kelas, index) => (
-                                    <tr key={kelas.id || index} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 text-sm text-center font-medium">
-                                            {String(startIndex + index + 1).padStart(2, "0")}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm font-medium">
-                                            {kelas.name || kelas.nama_kelas}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm">
-                                            {kelas.tipe_kelas || "Kelas Besar"}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-center font-medium">
-                                            {kelas.jumlah_siswa || kelas.jumlah || 0}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex gap-2 justify-center">
-                                                <button
-                                                    onClick={() => handleOpenUpdate(kelas)}
-                                                    className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-1.5 rounded text-sm font-medium transition-colors"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleOpenDelete(kelas)}
-                                                    className="bg-red-500 hover:bg-red-600 text-white px-5 py-1.5 rounded text-sm font-medium transition-colors"
-                                                >
-                                                    Hapus
-                                                </button>
-                                            </div>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                                {isLoading ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                            Loading...
                                         </td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                ) : currentKelas.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                            {searchQuery
+                                                ? `Tidak ada kelas yang cocok dengan "${searchQuery}"`
+                                                : "Tidak ada data kelas"}
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    currentKelas.map((kelas, index) => (
+                                        <tr key={kelas.id || index} className={index % 2 === 0 ? "bg-white" : "bg-[#25343F14]"}>
+                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-center" : "text-center border-r-4 border-white"}>
+                                                {String(startIndex + index + 1).padStart(2, "0")}
+                                            </td>
+                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-left" : "text-left px-3 py-4 border-r-4 border-white"}>
+                                                {kelas.name || kelas.nama_kelas}
+                                            </td>
+                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-left" : "text-left px-3 py-4 border-r-4 border-white"}>
+                                                {kelas.tipe_kelas || "Kelas Besar"}
+                                            </td>
+                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-left" : "text-left px-3 py-4 border-r-4 border-white"}>
+                                                {kelas.jumlah_siswa || kelas.jumlah || 0}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex gap-2 justify-center">
+                                                    <button
+                                                        onClick={() => handleOpenUpdate(kelas)}
+                                                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-1.5 rounded-full text-sm font-medium transition-colors"
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleOpenDelete(kelas)}
+                                                        className="bg-red-500 hover:bg-red-600 text-white px-5 py-1.5 rounded-full text-sm font-medium transition-colors"
+                                                    >
+                                                        Hapus
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                     <div className="mt-8 flex items-center justify-between px-2">
                         <button
                             type="button"

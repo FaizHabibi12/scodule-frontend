@@ -11,6 +11,7 @@ import { apiRequest, API_CONFIG } from "@/src/lib/api-client";
 import { TeacherListResponse, TeacherTableRecord } from "@/src/types/user-management";
 import DialogDeleteTentor from "./dialog-delete-tentor";
 import DialogUpdateTentor from "./dialog-update-tentor";
+import { IoIosArrowDown } from "react-icons/io";
 
 const ITEMS_PER_PAGE = 6;
 const EDGE_VISIBLE_PAGES = 4;
@@ -20,6 +21,7 @@ type PaginationItem = number | "ellipsis";
 export default function DaftarTentorManagement() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedSkill, setSelectedSkill] = useState(SKILL_OPTIONS[0]);
+    const [isSkillSelectOpen, setIsSkillSelectOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);
     const [mentors, setMentors] = useState<TeacherTableRecord[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -122,6 +124,7 @@ export default function DaftarTentorManagement() {
     const handleSkillChange = (value: string) => {
         setSelectedSkill(value);
         setCurrentPage(1);
+        setIsSkillSelectOpen(false);
     };
 
     const handleImportClick = () => {
@@ -195,64 +198,63 @@ export default function DaftarTentorManagement() {
                     <h5 className="text-2xl font-medium text-black">Daftar Tentor</h5>
                 </div>
 
-                <div className="rounded-3xl bg-white px-6 py-6 shadow-[0_12px_40px_rgba(37,52,63,0.08)]">
-                    <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="relative w-full max-w-95">
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(event) => handleSearchChange(event.target.value)}
-                                placeholder="Search Bar"
-                                className="h-12 w-full rounded-2xl bg-[#f3f1f1] px-5 pr-12 text-sm text-slate-700 outline-none placeholder:text-slate-400"
-                            />
-                            <CiSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-2xl text-slate-400" />
-                        </div>
-
-                        <div className="flex flex-wrap items-center justify-end gap-3">
-                            <div className="relative">
-                                <select
-                                    title="Pilih keahlian"
-                                    value={selectedSkill}
-                                    onChange={(event) => handleSkillChange(event.target.value)}
-                                    className="h-11 min-w-32 appearance-none rounded-2xl bg-[#f3f1f1] px-4 pr-9 text-sm text-slate-400 outline-none"
-                                >
-                                    {SKILL_OPTIONS.map((skill) => (
-                                        <option key={skill} value={skill}>
-                                            {skill}
-                                        </option>
-                                    ))}
-                                </select>
-                                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">⌄</span>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={handleImportClick}
-                                disabled={isImporting}
-                                className="flex h-11 items-center gap-2 rounded-2xl bg-[#f3f1f1] px-5 text-sm text-slate-400 transition hover:text-slate-600"
-                            >
-                                Import
-                                <LuUpload className="text-base" />
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => toast.info("Export belum tersedia", { description: "Endpoint export belum tersedia di backend." })}
-                                className="flex h-11 items-center gap-2 rounded-2xl bg-[#f3f1f1] px-5 text-sm text-slate-400 transition hover:text-slate-600"
-                            >
-                                Export
-                                <LuDownload className="text-base" />
-                            </button>
-                        </div>
+                <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="relative w-full max-w-95">
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(event) => handleSearchChange(event.target.value)}
+                            placeholder="Search Bar"
+                            className="h-12 w-full rounded-2xl bg-white px-5 pr-12 text-base text-slate-700 outline-none placeholder:text-slate-400"
+                        />
+                        <CiSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-2xl text-slate-400" />
                     </div>
 
-                    <div className="overflow-hidden rounded-[18px] border border-[#d9d9d9] bg-white">
+                    <div className="flex flex-wrap items-center justify-end gap-3">
+                        <div className="group relative">
+                            <select
+                                title="Pilih keahlian"
+                                value={selectedSkill}
+                                onChange={(event) => handleSkillChange(event.target.value)}
+                                onPointerDown={() => setIsSkillSelectOpen(true)}
+                                onBlur={() => setIsSkillSelectOpen(false)}
+                                className="h-11 min-w-32 appearance-none rounded-2xl bg-white px-4 pr-9 text-sm text-slate-400 outline-none">
+                                {SKILL_OPTIONS.map((skill) => (
+                                    <option key={skill} value={skill}>
+                                        {skill}
+                                    </option>
+                                ))}
+                            </select>
+                            <IoIosArrowDown className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-transform duration-200 ease-out group-hover:scale-110 ${isSkillSelectOpen ? "rotate-180" : "rotate-0"}`} />
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleImportClick}
+                            disabled={isImporting}
+                            className="flex h-11 items-center gap-2 rounded-2xl bg-white px-5 text-sm text-slate-400 transition hover:text-slate-600">
+                            Import
+                            <LuUpload className="text-base" />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => toast.info("Export belum tersedia", { description: "Endpoint export belum tersedia di backend." })}
+                            className="flex h-11 items-center gap-2 rounded-2xl bg-white px-5 text-sm text-slate-400 transition hover:text-slate-600">
+                            Export
+                            <LuDownload className="text-base" />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="rounded-3xl bg-white p-2 shadow-[0_12px_40px_rgba(37,52,63,0.08)]">
+                    <div className="overflow-hidden rounded-[18px] border border-[#d9d9d9]">
                         <table className="min-w-full border-separate border-spacing-0">
                             <thead>
                                 <tr className="bg-baseBlue text-white">
-                                    <th className="w-16 border-r border-white px-3 py-4 text-left text-sm font-medium">NO</th>
-                                    <th className="border-r border-white px-3 py-4 text-left text-sm font-medium">Nama Lengkap</th>
-                                    <th className="border-r border-white px-3 py-4 text-left text-sm font-medium">Nomor Telepon</th>
-                                    <th className="border-r border-white px-3 py-4 text-left text-sm font-medium">Keahlian</th>
+                                    <th className="w-16 border-r-4 border-white px-3 py-4 text-left text-sm font-medium">NO</th>
+                                    <th className="border-r-4 border-white px-3 py-4 text-left text-sm font-medium">Nama Lengkap</th>
+                                    <th className="border-r-4 border-white px-3 py-4 text-left text-sm font-medium">Nomor Telepon</th>
+                                    <th className="border-r-4 border-white px-3 py-4 text-left text-sm font-medium">Keahlian</th>
                                     <th className="w-32 px-3 py-4 text-left text-sm font-medium">Action</th>
                                 </tr>
                             </thead>
@@ -266,26 +268,24 @@ export default function DaftarTentorManagement() {
                                 ) : currentMentors.length > 0 ? (
                                     currentMentors.map((mentor, index) => (
                                         <tr key={mentor.id} className={index % 2 === 0 ? "bg-white" : "bg-[#25343F14]"}>
-                                            <td className="border-r border-[#e4e4e4] px-3 py-4 text-sm text-slate-600">
+                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-center" : "text-center border-r-4 border-white"}>
                                                 {String(startIndex + index + 1).padStart(2, "0")}
                                             </td>
-                                            <td className="border-r border-[#e4e4e4] px-3 py-4 text-sm text-slate-700">{mentor.fullName}</td>
-                                            <td className="border-r border-[#e4e4e4] px-3 py-4 text-sm text-slate-700">{mentor.phoneNumber}</td>
-                                            <td className="border-r border-[#e4e4e4] px-3 py-4 text-sm text-slate-700">{mentor.expertise}</td>
+                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-left" : "px-3 py-4 text-left border-r-4 border-white"}>{mentor.fullName}</td>
+                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-left" : "px-3 py-4 text-left border-r-4 border-white"}>{mentor.phoneNumber}</td>
+                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-left" : "px-3 py-4 text-left border-r-4 border-white"}>{mentor.expertise}</td>
                                             <td className="px-3 py-4">
                                                 <div className="flex items-center gap-2">
                                                     <button
                                                         type="button"
                                                         onClick={() => handleUpdateClick(mentor)}
-                                                        className="rounded-full bg-[#28c98b] px-4 py-1.5 text-xs font-medium text-white transition hover:bg-[#20b178]"
-                                                    >
+                                                        className="rounded-full bg-[#28c98b] px-4 py-1.5 text-xs font-medium text-white transition hover:bg-[#20b178]">
                                                         Edit
                                                     </button>
                                                     <button
                                                         type="button"
                                                         onClick={() => handleDeleteClick(mentor)}
-                                                        className="rounded-full bg-[#f05b4f] px-4 py-1.5 text-xs font-medium text-white transition hover:bg-[#db473d]"
-                                                    >
+                                                        className="rounded-full bg-[#f05b4f] px-4 py-1.5 text-xs font-medium text-white transition hover:bg-[#db473d]">
                                                         Hapus
                                                     </button>
                                                 </div>

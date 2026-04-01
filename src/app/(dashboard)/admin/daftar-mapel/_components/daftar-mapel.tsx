@@ -189,17 +189,14 @@ export default function DaftarMapelManagement() {
                             <Search
                                 url="/dashboard/daftar-mapel"
                                 search={searchQuery}
-                                onSearchChange={handleSearch}
-                            />
+                                onSearchChange={handleSearch}/>
                             <CiSearch
                                 size={25}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted"
-                            />
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted"/>
                         </div>
                         <button
                             onClick={handleOpenCreate}
-                            className="px-4 py-2 flex items-center gap-2 bg-primary text-white rounded-full font-medium text-base"
-                        >
+                            className="px-4 py-2 flex items-center gap-2 bg-primary text-white rounded-full font-medium text-base">
                             Mapel Baru
                             <TbLayoutGridAdd size={22} />
                         </button>
@@ -224,17 +221,14 @@ export default function DaftarMapelManagement() {
                             return (
                                 <div
                                     key={subject.id}
-                                    className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow"
-                                >
+                                    className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow">
                                     <div
                                         className="flex items-center justify-between px-6 py-4 cursor-pointer transition-colors"
-                                        onClick={() => toggleExpanded(subject.id!)}
-                                    >
+                                        onClick={() => toggleExpanded(subject.id!)}>
                                         <div className="gap-3">
                                             <h3
                                                 className={`text-xl flex item-center gap-4 transition-colors ${isExpanded ? "text-primary font-bold" : "text-muted"
-                                                    }`}
-                                            >
+                                                    }`}>
                                                 <PiBookOpenTextFill
                                                     size={24}
                                                     className={`${isExpanded ? "text-primary" : "text-muted"}`}
@@ -245,8 +239,7 @@ export default function DaftarMapelManagement() {
                                         <button
                                             title="button-arrow"
                                             className={`transition-transform duration-300 ease-in-out text-muted ${isExpanded ? "rotate-180" : "rotate-0"
-                                                }`}
-                                        >
+                                                }`}>
                                             <IoChevronDown size={24} />
                                         </button>
                                     </div>
@@ -271,8 +264,7 @@ export default function DaftarMapelManagement() {
                                                                 {subject.sub_subjects.map((subSubject, index) => (
                                                                     <tr
                                                                         key={subSubject.id || index}
-                                                                        className="odd:bg-white even:bg-[#25343F1A]"
-                                                                    >
+                                                                        className="odd:bg-white even:bg-[#25343F1A]">
                                                                         <td className="px-4 py-3 text-sm font-normal text-foreground text-center">
                                                                             {String(index + 1).padStart(2, "0")}
                                                                         </td>
@@ -291,8 +283,7 @@ export default function DaftarMapelManagement() {
                                                                 e.stopPropagation();
                                                                 handleOpenUpdate(subject);
                                                             }}
-                                                            className="bg-white border text-primary border-primary py-2 px-4 rounded-full font-medium text-base flex items-center gap-2"
-                                                        >
+                                                            className="bg-white border text-primary border-primary py-2 px-4 rounded-full font-medium text-base flex items-center gap-2">
                                                             Edit Mapel
                                                             <RiEdit2Fill size={20} />
                                                         </button>
@@ -309,8 +300,7 @@ export default function DaftarMapelManagement() {
                                                                 e.stopPropagation();
                                                                 handleOpenUpdate(subject);
                                                             }}
-                                                            className="bg-white border text-primary border-primary py-2 px-4 rounded-full font-medium text-base flex items-center gap-2"
-                                                        >
+                                                            className="bg-white border text-primary border-primary py-2 px-4 rounded-full font-medium text-base flex items-center gap-2">
                                                             Edit Mapel
                                                             <RiEdit2Fill size={20} />
                                                         </button>
