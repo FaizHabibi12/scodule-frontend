@@ -1,7 +1,7 @@
 "use client";
 
 import { INITIAL_UPDATE_USER_FORM } from "@/src/constants/user-management-constant";
-import { API_CONFIG } from "@/src/lib/api-client";
+import { apiRequest } from "@/src/lib/api-client";
 import { StudentTableRecord } from "@/src/types/user-management";
 import {
     updateUserNameSchema,
@@ -46,12 +46,8 @@ export default function DialogUpdatePelajar({
         setIsSubmitting(true);
 
         try {
-            const response = await fetch(`${API_CONFIG.baseURL}/admin/users/${currentData.userId}`, {
+            const { error } = await apiRequest<{ message: string }>(`/admin/users/${currentData.userId}`, {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
                 body: JSON.stringify({
                     kode_user: currentData.kodeUser,
                     name: values.name,
@@ -59,10 +55,8 @@ export default function DialogUpdatePelajar({
                 }),
             });
 
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result?.error || result?.message || "Gagal memperbarui pelajar");
+            if (error) {
+                throw new Error(error || "Gagal memperbarui pelajar");
             }
 
             toast.success("Data pelajar berhasil diperbarui");

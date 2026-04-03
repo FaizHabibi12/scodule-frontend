@@ -113,7 +113,7 @@ export default function DialogCreateSchedule({
                         : sessionsRes.data.data.data || []
                 );
             }
-        } catch (error) {
+        } catch {
             toast.error("Gagal memuat data awal");
         } finally {
             setIsLoading(false);
@@ -128,7 +128,7 @@ export default function DialogCreateSchedule({
                 setTeachers(Array.isArray(data.data) ? data.data : data.data.data || []);
                 setFormData((prev: ScheduleFormData) => ({ ...prev, teacher_id: 0 }));
             }
-        } catch (error) {
+        } catch {
             toast.error("Gagal memuat data guru");
         }
     };
@@ -141,7 +141,7 @@ export default function DialogCreateSchedule({
                 setSubSubjects(Array.isArray(data.data) ? data.data : data.data.data || []);
                 setFormData((prev: ScheduleFormData) => ({ ...prev, sub_subject_id: null }));
             }
-        } catch (error) {
+        } catch {
             toast.error("Gagal memuat sub-mapel");
         }
     };

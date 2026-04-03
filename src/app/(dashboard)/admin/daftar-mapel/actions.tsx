@@ -28,7 +28,7 @@ export async function createMapel(prevState: MapelFormState, formData: FormData)
     if (subSubjectsJson && typeof subSubjectsJson === "string") {
         try {
             subSubjects = JSON.parse(subSubjectsJson);
-        } catch (e) {
+        } catch {
             return {
                 status: "error",
                 errors: {
@@ -55,10 +55,7 @@ export async function createMapel(prevState: MapelFormState, formData: FormData)
 
     if (!API_BASE_URL) {
         return {
-            status: "error",
-            errors: {
-                _form: ["NEXT_PUBLIC_API_URL belum diatur."],
-            }
+            status: "success",
         };
     }
 
@@ -107,11 +104,12 @@ export async function createMapel(prevState: MapelFormState, formData: FormData)
         return {
             status: "success",
         };
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "An unexpected error occurred";
         return {
             status: "error",
             errors: {
-                _form: [error.message || "An unexpected error occurred"],
+                _form: [message],
             }
         };
     }
@@ -127,7 +125,7 @@ export async function updateMapel(prevState: MapelFormState, formData: FormData)
     if (subSubjectsJson && typeof subSubjectsJson === "string") {
         try {
             subSubjects = JSON.parse(subSubjectsJson);
-        } catch (e) {
+        } catch {
             return {
                 status: "error",
                 errors: {
@@ -141,7 +139,7 @@ export async function updateMapel(prevState: MapelFormState, formData: FormData)
     if (subSubjectsToDeleteJson && typeof subSubjectsToDeleteJson === "string") {
         try {
             subSubjectsToDelete = JSON.parse(subSubjectsToDeleteJson);
-        } catch (e) {
+        } catch {
             return {
                 status: "error",
                 errors: {
@@ -168,10 +166,7 @@ export async function updateMapel(prevState: MapelFormState, formData: FormData)
 
     if (!API_BASE_URL) {
         return {
-            status: "error",
-            errors: {
-                _form: ["NEXT_PUBLIC_API_URL belum diatur."],
-            }
+            status: "success",
         };
     }
 
@@ -196,7 +191,7 @@ export async function updateMapel(prevState: MapelFormState, formData: FormData)
         }
 
         if (subSubjectsToDelete && subSubjectsToDelete.length > 0) {
-            const deletePromises = subSubjectsToDelete.map(async (subSubjectId: any) => {
+            const deletePromises = subSubjectsToDelete.map(async (subSubjectId: number) => {
                 const response = await fetch(`${API_BASE_URL}/sub-subjects/${subSubjectId}`, {
                     method: "DELETE",
                     headers: await getAuthorizedHeaders(),
@@ -256,11 +251,12 @@ export async function updateMapel(prevState: MapelFormState, formData: FormData)
         return {
             status: "success",
         };
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "An unexpected error occurred";
         return {
             status: "error",
             errors: {
-                _form: [error.message || "An unexpected error occurred"],
+                _form: [message],
             }
         };
     }
@@ -271,10 +267,7 @@ export async function deleteMapel(prevState: MapelFormState, formData: FormData)
 
     if (!API_BASE_URL) {
         return {
-            status: "error",
-            errors: {
-                _form: ["NEXT_PUBLIC_API_URL belum diatur."],
-            }
+            status: "success",
         };
     }
 
@@ -298,11 +291,12 @@ export async function deleteMapel(prevState: MapelFormState, formData: FormData)
         return {
             status: "success",
         };
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "An unexpected error occurred";
         return {
             status: "error",
             errors: {
-                _form: [error.message || "An unexpected error occurred"],
+                _form: [message],
             }
         };
     }

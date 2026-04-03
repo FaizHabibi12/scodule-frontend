@@ -8,11 +8,18 @@ import { updateKelas } from "../../daftar-kelas/actions"; // pastikan action ini
 import { CreateKelasForm, createKelasSchema } from "@/src/validations/kelas-validation"; // reuse schema
 import FormKelas from "./form-kelas";
 
+type KelasDialogData = {
+    id?: number;
+    name?: string;
+    tipe_kelas?: "Kelas Besar" | "Kelas Kecil";
+    jumlah_siswa?: number;
+};
+
 type UpdateKelasProps = {
     open: boolean;
     onClose: () => void;
     refetch: () => void;
-    currentData?: any;
+    currentData?: KelasDialogData;
 };
 
 export default function DialogUpdateKelas({

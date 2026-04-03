@@ -16,6 +16,10 @@ import { TbLayoutGridAdd } from "react-icons/tb";
 import { LIMIT_LIST, DEFAULT_LIMIT, DEFAULT_PAGE } from "@/src/constants/data-table-constant";
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 
+type SubjectListResponse = {
+    data?: Subject[] | { data?: Subject[] };
+};
+
 export default function DaftarMapelManagement() {
     const [subjects, setSubjects] = useState<Subject[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +42,7 @@ export default function DaftarMapelManagement() {
     const fetchSubjects = useCallback(async () => {
         setIsLoading(true);
         try {
-            const { data, error } = await apiRequest('/subjects');
+            const { data, error } = await apiRequest<SubjectListResponse>('/subjects');
 
             if (error) {
                 toast.error('Gagal mengambil data mapel', {
@@ -48,20 +52,16 @@ export default function DaftarMapelManagement() {
                 return;
             }
 
-            if (data) {
-                if (data.data && Array.isArray(data.data)) {
-                    setSubjects(data.data);
-                } else if (Array.isArray(data)) {
-                    setSubjects(data);
-                } else {
-                    setSubjects([]);
-                }
-            } else {
+            if (!data?.data) {
                 setSubjects([]);
+                return;
             }
-        } catch (error: any) {
+
+            setSubjects(Array.isArray(data.data) ? data.data : (data.data.data ?? []));
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Terjadi kesalahan.";
             toast.error('Gagal mengambil data mapel', {
-                description: error.message,
+                description: message,
             });
             setSubjects([]);
         } finally {
@@ -104,14 +104,6 @@ export default function DaftarMapelManagement() {
             ...prev,
             update: false,
             currentData: undefined
-        }));
-    }, []);
-
-    const handleOpenDelete = useCallback((subject: Subject) => {
-        setDialogState(prev => ({
-            ...prev,
-            delete: true,
-            currentData: subject
         }));
     }, []);
 

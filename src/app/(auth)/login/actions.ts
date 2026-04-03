@@ -6,6 +6,25 @@ import { loginSchemaForm } from "@/src/validations/auth-validation";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
+type LoginApiUser = {
+    role?: string;
+} & Record<string, unknown>;
+
+type LoginApiResponse = {
+    token?: string;
+    access_token?: string;
+    user?: LoginApiUser | null;
+    data?: {
+        token?: string;
+        user?: LoginApiUser | null;
+    };
+    errors?: {
+        kode_user?: string[];
+        password?: string[];
+    };
+    message?: string;
+};
+
 export async function login(prevState: AuthFormState, formData: FormData | null) {
 
     if (!formData) {
@@ -45,7 +64,7 @@ export async function login(prevState: AuthFormState, formData: FormData | null)
         : `/${configuredLoginPath}`;
 
     let response: Response;
-    let result: any = null;
+    let result: LoginApiResponse | null = null;
 
     try {
         response = await fetch(`${normalizedBaseUrl}${normalizedLoginPath}`, {
@@ -188,7 +207,7 @@ export async function logout() {
             }
 
             if (!response.ok && response.status !== 401) {
-                let responseJson: any = null;
+                let responseJson: { message?: string } | null = null;
                 try {
                     responseJson = await response.json();
                 } catch {

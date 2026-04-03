@@ -194,13 +194,26 @@ export default function DaftarSchedule() {
     const [currentWeek, setCurrentWeek] = useState(1);
     const [schedules, setSchedules] = useState<ScheduleApiRecord[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [isAdmin] = useState(() => {
+        if (typeof document === "undefined") {
+            return false;
+        }
+
+        const roleCookie = document.cookie
+            .split(";")
+            .map((cookie) => cookie.trim())
+            .find((cookie) => cookie.startsWith("user_role="))
+            ?.split("=")[1];
+
+        const role = roleCookie ? decodeURIComponent(roleCookie) : "";
+        return role === "admin";
+    });
     const [openSelectType, setOpenSelectType] = useState(false);
     const [openCreateDialog, setOpenCreateDialog] = useState(false);
     const [selectedScheduleType, setSelectedScheduleType] = useState<"regular" | "private">(
         "regular"
     );
-    const [className, setClassName] = useState("A1");
+    const className = "A1";
 
     const fetchSchedules = useCallback(async () => {
         setIsLoading(true);
@@ -214,19 +227,12 @@ export default function DaftarSchedule() {
     }, []);
 
     useEffect(() => {
-        fetchSchedules();
+        const loadSchedules = async () => {
+            await fetchSchedules();
+        };
+
+        void loadSchedules();
     }, [fetchSchedules]);
-
-    useEffect(() => {
-        const roleCookie = document.cookie
-            .split(";")
-            .map((cookie) => cookie.trim())
-            .find((cookie) => cookie.startsWith("user_role="))
-            ?.split("=")[1];
-
-        const role = roleCookie ? decodeURIComponent(roleCookie) : "";
-        setIsAdmin(role === "admin");
-    }, []);
 
     // Group schedules by session and day
     const scheduleGrid: ScheduleGrid = schedules.reduce((acc, schedule) => {

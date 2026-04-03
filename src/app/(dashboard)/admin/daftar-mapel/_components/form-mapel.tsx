@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState, useEffect } from "react";
-import { UseFormReturn } from "react-hook-form";
+import { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { SubSubjectForm } from "@/src/validations/mapel-validation";
 import { FaPlus } from "react-icons/fa6";
 import { IoCheckmarkCircle, IoSquareOutline } from "react-icons/io5";
@@ -9,7 +9,7 @@ import { FaCheckSquare, FaTrashAlt } from "react-icons/fa";
 import { IoMdCloseCircle } from "react-icons/io";
 import DialogDeleteSubMapel from "./dialog-delete-sub-mapel";
 
-export default function FormMapel<T extends Record<string, any>>({
+export default function FormMapel<T extends FieldValues>({
     form,
     onSubmit,
     isLoading,
@@ -36,16 +36,23 @@ export default function FormMapel<T extends Record<string, any>>({
     }>({ open: false, index: null, subSubjectName: '' });
 
     useEffect(() => {
-        if (open && initialSubSubjects && initialSubSubjects.length > 0) {
-            setSubSubjects(initialSubSubjects);
-            setShowSubSubjects(true);
-            setMarkedForDeletion(new Set());
-        } else if (!open) {
-            setSubSubjects([]);
-            setShowSubSubjects(false);
-            setMarkedForDeletion(new Set());
-            setDeleteConfirmDialog({ open: false, index: null, subSubjectName: '' });
-        }
+        const syncState = () => {
+            if (open && initialSubSubjects && initialSubSubjects.length > 0) {
+                setSubSubjects(initialSubSubjects);
+                setShowSubSubjects(true);
+                setMarkedForDeletion(new Set());
+                return;
+            }
+
+            if (!open) {
+                setSubSubjects([]);
+                setShowSubSubjects(false);
+                setMarkedForDeletion(new Set());
+                setDeleteConfirmDialog({ open: false, index: null, subSubjectName: '' });
+            }
+        };
+
+        queueMicrotask(syncState);
     }, [open, initialSubSubjects]);
 
     const handleAddSubSubject = () => {
@@ -117,17 +124,17 @@ export default function FormMapel<T extends Record<string, any>>({
             if (validSubSubjects.length === 0 && subSubjects.some((_, i) => !markedForDeletion.has(i))) {
                 return;
             }
-            form.setValue("subSubjects" as any, validSubSubjects as any);
+            form.setValue("subSubjects" as Path<T>, validSubSubjects as T[Path<T>]);
 
             const toDelete = subSubjects
                 .filter((_, index) => markedForDeletion.has(index))
                 .filter(ss => ss.id)
                 .map(ss => ss.id);
 
-            form.setValue("subSubjectsToDelete" as any, toDelete as any);
+            form.setValue("subSubjectsToDelete" as Path<T>, toDelete as T[Path<T>]);
         } else {
-            form.setValue("subSubjects" as any, [] as any);
-            form.setValue("subSubjectsToDelete" as any, [] as any);
+            form.setValue("subSubjects" as Path<T>, [] as T[Path<T>]);
+            form.setValue("subSubjectsToDelete" as Path<T>, [] as T[Path<T>]);
         }
 
         onSubmit(e);
@@ -170,7 +177,7 @@ export default function FormMapel<T extends Record<string, any>>({
                                 <input
                                     type="text"
                                     id="name"
-                                    {...form.register("name" as any)}
+                                    {...form.register("name" as Path<T>)}
                                     className="w-full px-3 text-foreground py-3 bg-[#F4F4F5] rounded-lg focus:outline-none"
                                     placeholder="Masukkan nama mapel" />
                                 {form.formState.errors.name && (
@@ -205,7 +212,7 @@ export default function FormMapel<T extends Record<string, any>>({
 
 
                                     {subSubjects.length === 0 ? (
-                                        <p className="text-gray-500 text-sm">Belum ada sub mapel. Klik "+ nama sub mapel" untuk menambahkan.</p>
+                                        <p className="text-gray-500 text-sm">Belum ada sub mapel. Klik &quot;+ nama sub mapel&quot; untuk menambahkan.</p>
                                     ) : (
                                         <div className="space-y-2">
                                             <div className="flex space-x-2">

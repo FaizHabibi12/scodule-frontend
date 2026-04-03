@@ -1,11 +1,11 @@
 "use client";
 
 import { FormEvent, useEffect } from "react";
-import { UseFormReturn } from "react-hook-form";
+import { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { IoCheckmarkCircle } from "react-icons/io5";
 import { toast } from "sonner";
 
-export default function FormKelas<T extends Record<string, any>>({
+export default function FormKelas<T extends FieldValues>({
     form,
     onSubmit,
     isLoading,
@@ -28,12 +28,19 @@ export default function FormKelas<T extends Record<string, any>>({
     useEffect(() => {
         if (Object.keys(errors).length > 0) {
             const errorMessages = Object.values(errors)
-                .map((error: any) => error.message)
-                .filter(Boolean);
+                .map((error) => {
+                    if (!error || typeof error !== "object" || !("message" in error)) {
+                        return null;
+                    }
+
+                    const message = error.message;
+                    return typeof message === "string" ? message : null;
+                })
+                .filter((message): message is string => Boolean(message));
 
             if (errorMessages.length > 0) {
                 toast.error("Data tidak sesuai", {
-                    description: errorMessages[0], // Tampilkan error pertama
+                    description: errorMessages[0],
                     duration: 4000,
                 });
             }
@@ -69,7 +76,7 @@ export default function FormKelas<T extends Record<string, any>>({
                         </label>
                         <input
                             type="text"
-                            {...form.register("name" as any)}
+                            {...form.register("name" as Path<T>)}
                             className="w-full px-4 py-3.5 bg-zinc-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base placeholder:text-gray-400"
                             placeholder="Isi nama kelas"
                         />
@@ -86,7 +93,7 @@ export default function FormKelas<T extends Record<string, any>>({
                             Tipe Kelas
                         </label>
                         <select
-                            {...form.register("tipeKelas" as any)}
+                            {...form.register("tipeKelas" as Path<T>)}
                             className="w-full px-4 py-3.5 bg-zinc-100 border border-transparent focus:border-blue-500 rounded-2xl focus:outline-none text-base appearance-none"
                             defaultValue=""
                         >
@@ -110,7 +117,7 @@ export default function FormKelas<T extends Record<string, any>>({
                         </label>
                         <input
                             type="number"
-                            {...form.register("jumlahSiswa" as any, { valueAsNumber: true })}
+                            {...form.register("jumlahSiswa" as Path<T>, { valueAsNumber: true })}
                             min="1" max="30"
                             className="w-full px-4 py-3.5 bg-zinc-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                             placeholder="0"

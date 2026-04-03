@@ -1,6 +1,6 @@
 "use client";
 
-import { API_CONFIG } from "@/src/lib/api-client";
+import { apiRequest } from "@/src/lib/api-client";
 import { StudentTableRecord } from "@/src/types/user-management";
 import { useState } from "react";
 import { IoCheckmarkCircle } from "react-icons/io5";
@@ -28,16 +28,12 @@ export default function DialogDeletePelajar({
         setIsDeleting(true);
 
         try {
-            const response = await fetch(`${API_CONFIG.baseURL}/admin/students/${currentData.id}`, {
+            const { error } = await apiRequest<{ message: string }>(`/admin/students/${currentData.id}`, {
                 method: "DELETE",
-                headers: {
-                    Accept: "application/json",
-                },
             });
 
-            const result = await response.json();
-            if (!response.ok) {
-                throw new Error(result?.error || result?.message || "Gagal menghapus pelajar");
+            if (error) {
+                throw new Error(error || "Gagal menghapus pelajar");
             }
 
             toast.success("Pelajar berhasil dihapus");

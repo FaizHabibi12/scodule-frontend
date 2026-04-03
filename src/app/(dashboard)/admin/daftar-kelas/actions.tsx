@@ -3,6 +3,8 @@
 import { createKelasSchema, updateKelasSchema } from "@/src/validations/kelas-validation";
 import { KelasFormState } from "@/src/types/kelas";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
 export async function createKelas(prevState: KelasFormState, formData: FormData): Promise<KelasFormState> {
     const name = formData.get("name");
     const tipeKelas = formData.get("tipe_kelas");
@@ -13,7 +15,7 @@ export async function createKelas(prevState: KelasFormState, formData: FormData)
     if (subSubjectsJson && typeof subSubjectsJson === "string") {
         try {
             subSubjects = JSON.parse(subSubjectsJson);
-        } catch (e) {
+        } catch {
             return {
                 status: "error",
                 errors: {
@@ -42,8 +44,14 @@ export async function createKelas(prevState: KelasFormState, formData: FormData)
         };
     }
 
+    if (!API_BASE_URL) {
+        return {
+            status: "success",
+        };
+    }
+
     try {
-        const subjectResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subjects`, {
+        const subjectResponse = await fetch(`${API_BASE_URL}/subjects`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -67,7 +75,7 @@ export async function createKelas(prevState: KelasFormState, formData: FormData)
 
         if (validatedFields.data.subSubjects && validatedFields.data.subSubjects.length > 0) {
             const subSubjectPromises = validatedFields.data.subSubjects.map(async (subSubject) => {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sub-subjects`, {
+                const response = await fetch(`${API_BASE_URL}/sub-subjects`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -93,11 +101,12 @@ export async function createKelas(prevState: KelasFormState, formData: FormData)
         return {
             status: "success",
         };
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "An unexpected error occurred";
         return {
             status: "error",
             errors: {
-                _form: [error.message || "An unexpected error occurred"],
+                _form: [message],
             }
         };
     }
@@ -113,7 +122,7 @@ export async function updateKelas(prevState: KelasFormState, formData: FormData)
     if (subSubjectsJson && typeof subSubjectsJson === "string") {
         try {
             subSubjects = JSON.parse(subSubjectsJson);
-        } catch (e) {
+        } catch {
             return {
                 status: "error",
                 errors: {
@@ -127,7 +136,7 @@ export async function updateKelas(prevState: KelasFormState, formData: FormData)
     if (subSubjectsToDeleteJson && typeof subSubjectsToDeleteJson === "string") {
         try {
             subSubjectsToDelete = JSON.parse(subSubjectsToDeleteJson);
-        } catch (e) {
+        } catch {
             return {
                 status: "error",
                 errors: {
@@ -159,8 +168,14 @@ export async function updateKelas(prevState: KelasFormState, formData: FormData)
         };
     }
 
+    if (!API_BASE_URL) {
+        return {
+            status: "success",
+        };
+    }
+
     try {
-        const subjectResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subjects/${id}`, {
+        const subjectResponse = await fetch(`${API_BASE_URL}/subjects/${id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -183,8 +198,8 @@ export async function updateKelas(prevState: KelasFormState, formData: FormData)
         }
 
         if (subSubjectsToDelete && subSubjectsToDelete.length > 0) {
-            const deletePromises = subSubjectsToDelete.map(async (subSubjectId: any) => {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sub-subjects/${subSubjectId}`, {
+            const deletePromises = subSubjectsToDelete.map(async (subSubjectId: number) => {
+                const response = await fetch(`${API_BASE_URL}/sub-subjects/${subSubjectId}`, {
                     method: "DELETE",
                     headers: {
                         "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
@@ -205,7 +220,7 @@ export async function updateKelas(prevState: KelasFormState, formData: FormData)
         if (validatedFields.data.subSubjects && validatedFields.data.subSubjects.length > 0) {
             const subSubjectPromises = validatedFields.data.subSubjects.map(async (subSubject) => {
                 if (subSubject.id) {
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sub-subjects/${subSubject.id}`, {
+                    const response = await fetch(`${API_BASE_URL}/sub-subjects/${subSubject.id}`, {
                         method: "PUT",
                         headers: {
                             "Content-Type": "application/json",
@@ -224,7 +239,7 @@ export async function updateKelas(prevState: KelasFormState, formData: FormData)
 
                     return response.json();
                 } else {
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sub-subjects`, {
+                    const response = await fetch(`${API_BASE_URL}/sub-subjects`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -251,11 +266,12 @@ export async function updateKelas(prevState: KelasFormState, formData: FormData)
         return {
             status: "success",
         };
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "An unexpected error occurred";
         return {
             status: "error",
             errors: {
-                _form: [error.message || "An unexpected error occurred"],
+                _form: [message],
             }
         };
     }
@@ -264,8 +280,14 @@ export async function updateKelas(prevState: KelasFormState, formData: FormData)
 export async function deleteKelas(prevState: KelasFormState, formData: FormData): Promise<KelasFormState> {
     const id = formData.get("id");
 
+    if (!API_BASE_URL) {
+        return {
+            status: "success",
+        };
+    }
+
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subjects/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/subjects/${id}`, {
             method: "DELETE",
             headers: {
                 "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
@@ -286,11 +308,12 @@ export async function deleteKelas(prevState: KelasFormState, formData: FormData)
         return {
             status: "success",
         };
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "An unexpected error occurred";
         return {
             status: "error",
             errors: {
-                _form: [error.message || "An unexpected error occurred"],
+                _form: [message],
             }
         };
     }

@@ -7,7 +7,7 @@ import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { LuDownload, LuUpload } from "react-icons/lu";
 import { DEFAULT_PAGE } from "@/src/constants/data-table-constant";
 import { IMPORT_ACCEPTED_FILE_TYPES } from "@/src/constants/user-management-constant";
-import { apiRequest, API_CONFIG } from "@/src/lib/api-client";
+import { apiRequest, isFrontendOnlyMode } from "@/src/lib/api-client";
 import { StudentListResponse, StudentTableRecord } from "@/src/types/user-management";
 import DialogUpdatePelajar from "./dialog-update-pelajar";
 import DialogDeletePelajar from "./dialog-delete-pelajar";
@@ -135,21 +135,18 @@ export default function DaftarUserManagement() {
             const formData = new FormData();
             formData.append("file", file);
 
-            const response = await fetch(`${API_CONFIG.baseURL}/admin/import/students`, {
+            const { error } = await apiRequest<{ message: string }>("/admin/import/students", {
                 method: "POST",
-                headers: {
-                    Accept: "application/json",
-                },
                 body: formData,
             });
 
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result?.error || result?.message || "Import gagal");
+            if (error) {
+                throw new Error(error);
             }
 
-            toast.success("Import pelajar berhasil");
+            toast.success(
+                isFrontendOnlyMode() ? "Import pelajar disimulasikan (frontend-only)." : "Import pelajar berhasil"
+            );
             await fetchStudents();
         } catch (error) {
             toast.error("Import pelajar gagal", {

@@ -69,7 +69,11 @@ export default function DashboardPage() {
     }, []);
 
     useEffect(() => {
-        fetchSummary();
+        const loadSummary = async () => {
+            await fetchSummary();
+        };
+
+        void loadSummary();
     }, [fetchSummary]);
 
     return (

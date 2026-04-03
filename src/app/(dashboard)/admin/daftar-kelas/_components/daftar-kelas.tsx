@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { Subject } from "@/src/types/kelas"; // Pastikan tipe ini sesuai atau kamu ubah
 import { apiRequest } from "@/src/lib/api-client";
 import DialogCreateKelas from "./dialog-create-kelas";
 import DialogUpdateKelas from "./dialog-update-kelas";
@@ -11,8 +10,21 @@ import Search from "./search";
 import { CiSearch } from "react-icons/ci";
 import { TbLayoutGridAdd } from "react-icons/tb";
 
+type KelasRecord = {
+    id?: number;
+    name?: string;
+    nama_kelas?: string;
+    tipe_kelas?: "Kelas Besar" | "Kelas Kecil";
+    jumlah_siswa?: number;
+    jumlah?: number;
+};
+
+type SubjectListResponse = {
+    data?: KelasRecord[] | { data?: KelasRecord[] };
+};
+
 export default function DaftarKelasManagement() {
-    const [kelasList, setKelasList] = useState<any[]>([]); // Ubah tipe sesuai kebutuhan
+    const [kelasList, setKelasList] = useState<KelasRecord[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -22,7 +34,7 @@ export default function DaftarKelasManagement() {
         create: boolean;
         update: boolean;
         delete: boolean;
-        currentData?: any;
+        currentData?: KelasRecord;
     }>({
         create: false,
         update: false,
@@ -32,7 +44,7 @@ export default function DaftarKelasManagement() {
     const fetchKelas = useCallback(async () => {
         setIsLoading(true);
         try {
-            const { data, error } = await apiRequest('/subjects'); // Ganti endpoint jika berbeda
+            const { data, error } = await apiRequest<SubjectListResponse>('/subjects'); // Ganti endpoint jika berbeda
 
             if (error) {
                 toast.error('Gagal mengambil data kelas', { description: error });
@@ -40,14 +52,15 @@ export default function DaftarKelasManagement() {
                 return;
             }
 
-            const kelasData = data?.data && Array.isArray(data.data) 
-                ? data.data 
-                : Array.isArray(data) ? data : [];
+            const kelasData = data?.data
+                ? (Array.isArray(data.data) ? data.data : (data.data.data ?? []))
+                : [];
 
             setKelasList(kelasData);
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Terjadi kesalahan.";
             toast.error('Gagal mengambil data kelas', {
-                description: error.message,
+                description: message,
             });
             setKelasList([]);
         } finally {
@@ -63,7 +76,7 @@ export default function DaftarKelasManagement() {
         setDialogState(prev => ({ ...prev, create: true }));
     };
 
-    const handleOpenUpdate = (kelas: any) => {
+    const handleOpenUpdate = (kelas: KelasRecord) => {
         setDialogState(prev => ({
             ...prev,
             update: true,
@@ -71,7 +84,7 @@ export default function DaftarKelasManagement() {
         }));
     };
 
-    const handleOpenDelete = (kelas: any) => {
+    const handleOpenDelete = (kelas: KelasRecord) => {
         setDialogState(prev => ({
             ...prev,
             delete: true,

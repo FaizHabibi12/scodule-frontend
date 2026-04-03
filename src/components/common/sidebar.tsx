@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -66,9 +66,27 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
     const [isLoggingOut, startLogoutTransition] = useTransition();
-    const [currentRole, setCurrentRole] = useState<SidebarMenuKey>("admin");
+    const [currentRole] = useState<SidebarMenuKey>(() => {
+        if (typeof document === "undefined") {
+            return "admin";
+        }
+
+        const roleCookie = document.cookie
+            .split(";")
+            .map((cookie) => cookie.trim())
+            .find((cookie) => cookie.startsWith("user_role="))
+            ?.split("=")[1];
+
+        if (!roleCookie) {
+            return "admin";
+        }
+
+        const parsedRole = decodeURIComponent(roleCookie) as SidebarMenuKey;
+        return parsedRole in SIDEBAR_MENU_LIST ? parsedRole : "admin";
+    });
     const roleMenuList = (SIDEBAR_MENU_LIST[currentRole] ?? SIDEBAR_MENU_LIST.admin) as SidebarMenu[];
-    const [isDaftarUserOpen, setIsDaftarUserOpen] = useState(pathname.startsWith("/admin/daftar-user"));
+    const [isDaftarUserOpenManual, setIsDaftarUserOpenManual] = useState(false);
+    const isDaftarUserOpen = pathname.startsWith("/admin/daftar-user") || isDaftarUserOpenManual;
 
     const isMenuActive = (url: string, exact = false) => {
         if (exact) {
@@ -77,30 +95,6 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
 
         return pathname === url || pathname.startsWith(`${url}/`);
     };
-
-    useEffect(() => {
-        const roleCookie = document.cookie
-            .split(";")
-            .map((cookie) => cookie.trim())
-            .find((cookie) => cookie.startsWith("user_role="))
-            ?.split("=")[1];
-
-        if (!roleCookie) {
-            return;
-        }
-
-        const parsedRole = decodeURIComponent(roleCookie) as SidebarMenuKey;
-
-        if (parsedRole in SIDEBAR_MENU_LIST) {
-            setCurrentRole(parsedRole);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (pathname.startsWith("/admin/daftar-user")) {
-            setIsDaftarUserOpen(true);
-        }
-    }, [pathname]);
 
     const handleLogout = () => {
         startLogoutTransition(async () => {
@@ -170,7 +164,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                                     <div key={menu.url}>
                                         <button
                                             type="button"
-                                            onClick={() => setIsDaftarUserOpen((prev) => !prev)}
+                                            onClick={() => setIsDaftarUserOpenManual((prev) => !prev)}
                                             className={`group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-300 ease-out ${isActive ? "bg-white/70 text-slate-700 shadow-[0_6px_18px_rgba(148,163,184,0.14)]" : "text-slate-500 hover:bg-white/50 hover:text-slate-700 hover:shadow-[0_6px_18px_rgba(148,163,184,0.1)]"}`}>
                                             <span className={`flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-300 ease-out ${isActive ? "bg-primary text-white shadow-[0_8px_20px_rgba(247,154,80,0.3)]" : "text-slate-500 group-hover:bg-white/70 group-hover:text-slate-700"}`}>
                                                 <Icon size={18} />
@@ -267,10 +261,13 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                         title={!isOpen ? "Ahmad Haidar El Haq" : undefined}
                         aria-label={!isOpen ? "Ahmad Haidar El Haq" : undefined}
                         className={`group relative flex w-full rounded-xl px-2 py-2 text-left transition-all duration-300 ease-out hover:bg-white/60 ${isOpen ? "items-center gap-3" : "justify-center"}`}>
-                        <img
+                        <Image
                             className="h-9 w-9 rounded-full object-cover"
                             src="https://raw.githubusercontent.com/Loopple/loopple-public-assets/main/riva-dashboard-tailwind/img/avatars/avatar1.jpg"
                             alt="profile"
+                            width={36}
+                            height={36}
+                            unoptimized
                         />
                         {isOpen ? (
                             <span className="block transition-opacity duration-300">

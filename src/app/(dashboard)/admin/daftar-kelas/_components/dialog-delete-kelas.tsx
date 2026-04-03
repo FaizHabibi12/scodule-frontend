@@ -1,16 +1,20 @@
 "use client";
 
-import { startTransition, useActionState, useEffect } from "react";
+import { useActionState, useEffect } from "react";
 import { deleteKelas } from "../actions";
 import { INITIAL_STATE_ACTION } from "@/src/constants/general-constant";
 import { toast } from "sonner";
-import { Subject } from "@/src/types/mapel";
 import { IoMdCloseCircle } from "react-icons/io";
 import { IoCheckmarkCircle } from "react-icons/io5";
 
+type KelasDialogData = {
+    id?: number;
+    name?: string;
+};
+
 export default function DialogDeleteKelas({ open, refetch, currentData, onClose }: {
     refetch: () => void;
-    currentData?: Subject;
+    currentData?: KelasDialogData;
     open: boolean;
     onClose: () => void;
 }) {
@@ -18,14 +22,6 @@ export default function DialogDeleteKelas({ open, refetch, currentData, onClose 
         deleteKelas,
         INITIAL_STATE_ACTION
     );
-
-    const onSubmit = () => {
-        const formData = new FormData();
-        formData.append('id', currentData!.id!.toString());
-        startTransition(() => {
-            deleteKelasAction(formData);
-        });
-    };
 
     useEffect(() => {
         if (deleteKelasState.status === 'error' && deleteKelasState.errors) {
