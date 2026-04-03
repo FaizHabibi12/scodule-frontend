@@ -423,8 +423,9 @@ async function handleMockRequest<T>(endpoint: string, options: RequestInit): Pro
     if (method === "PUT" && pathOnly.startsWith("/admin/users/")) {
         const userId = Number(pathOnly.replace("/admin/users/", ""));
         const body = extractBodyValue(options);
+        const nextName = typeof body?.name === "string" ? body.name.trim() : "";
 
-        if (!Number.isFinite(userId) || !body?.name) {
+        if (!Number.isFinite(userId) || !nextName) {
             return { data: null, error: "Payload update pengguna tidak valid." };
         }
 
@@ -437,7 +438,7 @@ async function handleMockRequest<T>(endpoint: string, options: RequestInit): Pro
                     ...student,
                     user: {
                         ...student.user,
-                        name: body.name,
+                        name: nextName,
                     },
                 };
             }
@@ -452,7 +453,7 @@ async function handleMockRequest<T>(endpoint: string, options: RequestInit): Pro
                     ...teacher,
                     user: {
                         ...teacher.user,
-                        name: body.name,
+                        name: nextName,
                     },
                 };
             }
@@ -547,11 +548,15 @@ export async function apiRequest<T = unknown>(
 
         let result = await parseJsonResponse(response);
 
+        const resultMessage = typeof result === 'object' && result !== null && 'message' in result && typeof (result as { message: unknown }).message === 'string'
+            ? (result as { message: string }).message
+            : '';
+
         const isRouteNotFound =
             response.status === 404 &&
-            typeof result?.message === 'string' &&
-            result.message.toLowerCase().includes('route') &&
-            result.message.toLowerCase().includes('could not be found');
+            resultMessage.length > 0 &&
+            resultMessage.toLowerCase().includes('route') &&
+            resultMessage.toLowerCase().includes('could not be found');
 
         if (isRouteNotFound) {
             const fallbackEndpoint = toSingularFirstSegment(endpoint);
@@ -584,7 +589,10 @@ export async function apiRequest<T = unknown>(
         console.log('API Response Data:', result);
 
         if (!response.ok) {
-            const errorMessage = result.error || result.message || `HTTP ${response.status}: ${response.statusText}`;
+            const resultObj = typeof result === 'object' && result !== null ? result as Record<string, unknown> : {};
+            const errorMessage = (typeof resultObj.error === 'string' ? resultObj.error : '') || 
+                                (typeof resultObj.message === 'string' ? resultObj.message : '') || 
+                                `HTTP ${response.status}: ${response.statusText}`;
             console.error('API Error Response:', errorMessage);
             return {
                 data: null,
@@ -592,7 +600,7 @@ export async function apiRequest<T = unknown>(
             };
         }
 
-        return { data: result, error: null };
+        return { data: (result ?? null) as T | null, error: null };
     } catch (error: unknown) {
         let errorMessage = 'Tidak dapat terhubung ke server';
 

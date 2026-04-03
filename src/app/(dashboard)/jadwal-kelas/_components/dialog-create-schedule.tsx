@@ -45,6 +45,10 @@ export type Session = {
     end_time: string;
 };
 
+type ApiListResponse<T> = {
+    data?: T[] | { data?: T[] };
+};
+
 interface DialogCreateScheduleProps {
     open: boolean;
     onClose: () => void;
@@ -85,9 +89,9 @@ export default function DialogCreateSchedule({
         setIsLoading(true);
         try {
             const [classRoomsRes, subjectsRes, sessionsRes] = await Promise.all([
-                apiRequest("/admin/class-rooms"),
-                apiRequest("/subjects"),
-                apiRequest("/sessions"),
+                apiRequest<ApiListResponse<ClassRoom>>("/admin/class-rooms"),
+                apiRequest<ApiListResponse<Subject>>("/subjects"),
+                apiRequest<ApiListResponse<Session>>("/sessions"),
             ]);
 
             if (!classRoomsRes.error && classRoomsRes.data?.data) {
@@ -122,7 +126,7 @@ export default function DialogCreateSchedule({
 
     const fetchTeachersBySubject = async (subjectId: number) => {
         try {
-            const { data, error } = await apiRequest(`/admin/teachers/subject/${subjectId}`);
+            const { data, error } = await apiRequest<ApiListResponse<Teacher>>(`/admin/teachers/subject/${subjectId}`);
 
             if (!error && data?.data) {
                 setTeachers(Array.isArray(data.data) ? data.data : data.data.data || []);
@@ -135,7 +139,7 @@ export default function DialogCreateSchedule({
 
     const fetchSubSubjectsBySubject = async (subjectId: number) => {
         try {
-            const { data, error } = await apiRequest(`/subjects/${subjectId}/sub-subjects`);
+            const { data, error } = await apiRequest<ApiListResponse<SubSubject>>(`/subjects/${subjectId}/sub-subjects`);
 
             if (!error && data?.data) {
                 setSubSubjects(Array.isArray(data.data) ? data.data : data.data.data || []);
