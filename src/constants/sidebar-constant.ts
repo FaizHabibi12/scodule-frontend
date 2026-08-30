@@ -3,6 +3,7 @@ import { LuUsers } from "react-icons/lu";
 import { LuChartPie } from "react-icons/lu";
 import { LuCalendarCheck } from "react-icons/lu";
 import { LuNotebookPen } from "react-icons/lu";
+import { LuClock3 } from "react-icons/lu";
 
 export const SIDEBAR_MENU_LIST = {
     admin: [
@@ -41,6 +42,11 @@ export const SIDEBAR_MENU_LIST = {
             title: 'Daftar Mapel',
             url: '/admin/daftar-mapel',
             icon: LuNotebookPen,
+        },
+        {
+            title: 'Sesi Kelas',
+            url: '/admin/sesi',
+            icon: LuClock3,
         },
     ],
     student: [

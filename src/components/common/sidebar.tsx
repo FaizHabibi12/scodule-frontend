@@ -8,6 +8,7 @@ import { SIDEBAR_MENU_LIST, SidebarMenuKey } from "@/src/constants/sidebar-const
 import Image from "next/image";
 import { logout } from "@/src/app/(auth)/login/actions";
 import { toast } from "sonner";
+import { AVATAR_FRAME_CLASS, avatarUrl, useCurrentUser } from "./user-profile";
 
 type MenuItemProps = {
     label: string;
@@ -69,6 +70,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
     const [currentRole, setCurrentRole] = useState<SidebarMenuKey>("admin");
     const roleMenuList = (SIDEBAR_MENU_LIST[currentRole] ?? SIDEBAR_MENU_LIST.admin) as SidebarMenu[];
     const [isDaftarUserOpen, setIsDaftarUserOpen] = useState(pathname.startsWith("/admin/daftar-user"));
+    const { user } = useCurrentUser();
 
     const isMenuActive = (url: string, exact = false) => {
         if (exact) {
@@ -264,21 +266,21 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
 
                 <div className={`border-t border-slate-300 pt-4 ${isOpen ? "mt-4" : "mt-3"}`}>
                     <button
-                        title={!isOpen ? "Ahmad Haidar El Haq" : undefined}
-                        aria-label={!isOpen ? "Ahmad Haidar El Haq" : undefined}
+                        title={!isOpen ? user?.name : undefined}
+                        aria-label={!isOpen ? user?.name : undefined}
                         className={`group relative flex w-full rounded-xl px-2 py-2 text-left transition-all duration-300 ease-out hover:bg-white/60 ${isOpen ? "items-center gap-3" : "justify-center"}`}>
                         <img
-                            className="h-9 w-9 rounded-full object-cover"
-                            src="https://raw.githubusercontent.com/Loopple/loopple-public-assets/main/riva-dashboard-tailwind/img/avatars/avatar1.jpg"
-                            alt="profile"
+                            className={`${AVATAR_FRAME_CLASS} h-9 w-9`}
+                            src={avatarUrl(user?.profile_photo)}
+                            alt={user?.name ?? "Profil"}
                         />
                         {isOpen ? (
                             <span className="block transition-opacity duration-300">
-                                <span className="block text-[0.96rem] text-[#f79a50]">Ahmad Haidar El Haq</span>
-                                <span className="block text-xs text-slate-500">Super Admin</span>
+                                <span className="block text-[0.96rem] text-[#f79a50]">{user?.name ?? "Memuat profil..."}</span>
+                                <span className="block text-xs capitalize text-slate-500">{user?.role ?? ""}</span>
                             </span>
                         ) : (
-                            <HoverTooltip label="Ahmad Haidar El Haq" />
+                            <HoverTooltip label={user?.name ?? "Profil"} />
                         )}
                     </button>
                 </div>

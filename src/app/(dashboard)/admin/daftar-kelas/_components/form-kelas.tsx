@@ -136,11 +136,10 @@ export default function FormKelas<T extends Record<string, any>>({
                         <button
                             type="submit"
                             disabled={!canSubmit}
-                            className={`px-8 py-3 text-white rounded-full font-medium flex items-center gap-2 transition-all ${
-                                canSubmit 
-                                    ? 'bg-primary hover:bg-[#1D4ED8]' 
+                            className={`px-8 py-3 text-white rounded-full font-medium flex items-center gap-2 transition-all ${canSubmit
+                                    ? 'bg-primary hover:bg-primary/75 hover:cursor-pointer'
                                     : 'bg-gray-400 cursor-not-allowed'
-                            }`}
+                                }`}
                         >
                             {isLoading ? "Menyimpan..." : "Simpan"}
                             {!isLoading && <IoCheckmarkCircle size={20} />}

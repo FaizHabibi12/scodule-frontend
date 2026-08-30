@@ -161,7 +161,11 @@ export default function DaftarTentorManagement() {
                 throw new Error(result?.error || result?.message || "Import gagal");
             }
 
-            toast.success("Import tentor berhasil");
+            const createdRows = result?.created_rows ?? 0;
+            const skippedRows = result?.skipped_rows ?? 0;
+            toast.success("Import tentor selesai", {
+                description: `${createdRows} data baru, ${skippedRows} data dilewati.`,
+            });
             await fetchTeachers();
         } catch (error) {
             toast.error("Import tentor gagal", {

@@ -8,6 +8,7 @@ import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { IoIosArrowForward } from "react-icons/io";
+import Link from "next/link";
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -37,7 +38,7 @@ export default function LoginPage() {
             hasRedirected.current = true;
             toast.success("Login berhasil");
             redirectTimeoutRef.current = setTimeout(() => {
-                router.push("/");
+                router.push("/admin");
             }, 1000);
         }
 
@@ -108,11 +109,11 @@ export default function LoginPage() {
                             ) : null}
 
                             <div className="flex items-center justify-between text-sm text-slate-500">
-                                <button type="button" className="hover:text-slate-700">
+                                <Link href="/reset-password" className="hover:text-slate-700">
                                     Lupa Password? <span className="font-semibold">Reset Kata Sandi</span>
-                                </button>
+                                </Link>
                                 <label className="inline-flex items-center gap-2">
-                                    <input type="checkbox" className="h-3.5 w-3.5 rounded border-slate-300" />
+                                    <input name="remember" type="checkbox" className="h-3.5 w-3.5 rounded border-slate-300" />
                                     <span>Ingat Password?</span>
                                 </label>
                             </div>

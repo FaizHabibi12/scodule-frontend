@@ -113,28 +113,20 @@ export async function login(prevState: AuthFormState, formData: FormData | null)
     }
 
     const cookiesStore = await cookies();
-    cookiesStore.set("auth_token", token, {
+    const remember = formData.get("remember") === "on";
+    const cookieOptions = {
         httpOnly: true,
         path: "/",
         sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 30,
-    });
+        ...(remember ? { maxAge: 60 * 60 * 24 * 30 } : {}),
+    } as const;
+    cookiesStore.set("auth_token", token, cookieOptions);
 
     if (profile) {
-        cookiesStore.set("user_profile", JSON.stringify(profile), {
-            httpOnly: true,
-            path: "/",
-            sameSite: "lax",
-            maxAge: 60 * 60 * 24 * 30,
-        });
+        cookiesStore.set("user_profile", JSON.stringify(profile), cookieOptions);
 
         if (typeof profile.role === "string" && profile.role.length > 0) {
-            cookiesStore.set("user_role", profile.role, {
-                httpOnly: false,
-                path: "/",
-                sameSite: "lax",
-                maxAge: 60 * 60 * 24 * 30,
-            });
+            cookiesStore.set("user_role", profile.role, { ...cookieOptions, httpOnly: false });
         }
     }
 

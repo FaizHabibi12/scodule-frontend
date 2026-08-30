@@ -45,6 +45,10 @@ export default function DialogCreateKelas({
     });
 
     useEffect(() => {
+        if (createKelasState.status === "idle") {
+            return;
+        }
+
         if (createKelasState.status === 'error') {
             toast.error('Gagal Membuat Kelas', {
                 description: createKelasState.errors?._form?.[0] || "Terjadi kesalahan",

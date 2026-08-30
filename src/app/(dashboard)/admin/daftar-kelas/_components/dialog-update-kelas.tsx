@@ -40,7 +40,7 @@ export default function DialogUpdateKelas({
         if (!currentData?.id) return;
 
         const formData = new FormData();
-        // formData.append("id", currentData.id.toString());
+        formData.append("id", currentData.id.toString());
         formData.append("name", data.name);
         formData.append("tipe_kelas", data.tipeKelas);
         formData.append("jumlah_siswa", data.jumlahSiswa.toString());

@@ -2,6 +2,29 @@
 
 import { createKelasSchema, updateKelasSchema } from "@/src/validations/kelas-validation";
 import { KelasFormState } from "@/src/types/kelas";
+import { cookies } from "next/headers";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
+async function requestHeaders(): Promise<HeadersInit> {
+    const token = (await cookies()).get("auth_token")?.value;
+
+    return {
+        "Accept": "application/json",
+        ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+        "Content-Type": "application/json",
+    };
+}
+
+async function readResponse(response: Response): Promise<Record<string, any>> {
+    const contentType = response.headers.get("content-type") || "";
+
+    if (!contentType.includes("application/json")) {
+        return { message: `Backend mengembalikan response ${response.status} yang bukan JSON.` };
+    }
+
+    return (await response.json()) as Record<string, any>;
+}
 
 export async function createKelas(prevState: KelasFormState, formData: FormData): Promise<KelasFormState> {
     const name = formData.get("name");
@@ -42,52 +65,31 @@ export async function createKelas(prevState: KelasFormState, formData: FormData)
         };
     }
 
+    if (!API_BASE_URL) {
+        return {
+            status: "error",
+            errors: { _form: ["NEXT_PUBLIC_API_URL belum diatur."] },
+        };
+    }
+
     try {
-        const subjectResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subjects`, {
+        const classResponse = await fetch(`${API_BASE_URL}/admin/classes`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-            },
+            headers: await requestHeaders(),
             body: JSON.stringify({
                 name: validatedFields.data.name,
             }),
         });
 
-        const subjectData = await subjectResponse.json();
+        const classData = await readResponse(classResponse);
 
-        if (!subjectResponse.ok) {
+        if (!classResponse.ok) {
             return {
                 status: "error",
                 errors: {
-                    _form: [subjectData.error || "Failed to create subject"],
+                    _form: [classData.error || classData.message || "Failed to create classroom"],
                 }
             };
-        }
-
-        if (validatedFields.data.subSubjects && validatedFields.data.subSubjects.length > 0) {
-            const subSubjectPromises = validatedFields.data.subSubjects.map(async (subSubject) => {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sub-subjects`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-                    },
-                    body: JSON.stringify({
-                        subject_id: subjectData.data.id,
-                        name: subSubject.name,
-                    }),
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || "Failed to create sub-subject");
-                }
-
-                return response.json();
-            });
-
-            await Promise.all(subSubjectPromises);
         }
 
         return {
@@ -159,93 +161,31 @@ export async function updateKelas(prevState: KelasFormState, formData: FormData)
         };
     }
 
+    if (!API_BASE_URL) {
+        return {
+            status: "error",
+            errors: { _form: ["NEXT_PUBLIC_API_URL belum diatur."] },
+        };
+    }
+
     try {
-        const subjectResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subjects/${id}`, {
+        const classResponse = await fetch(`${API_BASE_URL}/admin/classes/${id}`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-            },
+            headers: await requestHeaders(),
             body: JSON.stringify({
                 name: validatedFields.data.name,
             }),
         });
 
-        const subjectData = await subjectResponse.json();
+        const classData = await readResponse(classResponse);
 
-        if (!subjectResponse.ok) {
+        if (!classResponse.ok) {
             return {
                 status: "error",
                 errors: {
-                    _form: [subjectData.error || "Failed to update subject"],
+                    _form: [classData.error || classData.message || "Failed to update classroom"],
                 }
             };
-        }
-
-        if (subSubjectsToDelete && subSubjectsToDelete.length > 0) {
-            const deletePromises = subSubjectsToDelete.map(async (subSubjectId: any) => {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sub-subjects/${subSubjectId}`, {
-                    method: "DELETE",
-                    headers: {
-                        "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || "Failed to delete sub-subject");
-                }
-
-                return response.json();
-            });
-
-            await Promise.all(deletePromises);
-        }
-
-        if (validatedFields.data.subSubjects && validatedFields.data.subSubjects.length > 0) {
-            const subSubjectPromises = validatedFields.data.subSubjects.map(async (subSubject) => {
-                if (subSubject.id) {
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sub-subjects/${subSubject.id}`, {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-                        },
-                        body: JSON.stringify({
-                            subject_id: id,
-                            name: subSubject.name,
-                        }),
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || "Failed to update sub-subject");
-                    }
-
-                    return response.json();
-                } else {
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sub-subjects`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-                        },
-                        body: JSON.stringify({
-                            subject_id: id,
-                            name: subSubject.name,
-                        }),
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || "Failed to create sub-subject");
-                    }
-
-                    return response.json();
-                }
-            });
-
-            await Promise.all(subSubjectPromises);
         }
 
         return {
@@ -265,20 +205,18 @@ export async function deleteKelas(prevState: KelasFormState, formData: FormData)
     const id = formData.get("id");
 
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subjects/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/admin/classes/${id}`, {
             method: "DELETE",
-            headers: {
-                "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-            },
+            headers: await requestHeaders(),
         });
 
-        const data = await response.json();
+        const data = await readResponse(response);
 
         if (!response.ok) {
             return {
                 status: "error",
                 errors: {
-                    _form: [data.error || "Failed to delete subject"],
+                    _form: [data.error || data.message || "Failed to delete classroom"],
                 }
             };
         }

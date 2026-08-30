@@ -6,6 +6,7 @@ import { MdEdit, MdDownload } from "react-icons/md";
 import { FiPlus } from "react-icons/fi";
 import DialogSelectScheduleType from "./dialog-select-schedule-type";
 import DialogCreateSchedule from "./dialog-create-schedule";
+import { apiRequest } from "@/src/lib/api-client";
 
 type ScheduleApiRecord = {
     id: number;
@@ -42,6 +43,8 @@ type ScheduleGrid = {
     };
 };
 
+type ClassRoom = { id: number; name: string };
+
 const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 const DAYS_DISPLAY: Record<string, string> = {
     monday: "Monday",
@@ -54,142 +57,6 @@ const DAYS_DISPLAY: Record<string, string> = {
 
 const WEEKS = [1, 2, 3, 4];
 
-// Dummy data
-const DUMMY_SCHEDULES: ScheduleApiRecord[] = [
-    {
-        id: 1,
-        day: "monday",
-        class_room_id: 1,
-        subject_id: 1,
-        teacher_id: 1,
-        session_id: 1,
-        classRoom: { name: "A1" },
-        teacher: { user: { name: "Sandi" } },
-        subject: { name: "Matematika" },
-        session: { id: 1, start_time: "08:00", end_time: "09:30" },
-    },
-    {
-        id: 2,
-        day: "tuesday",
-        class_room_id: 1,
-        subject_id: 1,
-        teacher_id: 1,
-        session_id: 1,
-        classRoom: { name: "A1" },
-        teacher: { user: { name: "Sandi" } },
-        subject: { name: "Matematika" },
-        session: { id: 1, start_time: "08:00", end_time: "09:30" },
-    },
-    {
-        id: 3,
-        day: "wednesday",
-        class_room_id: 1,
-        subject_id: 1,
-        teacher_id: 1,
-        session_id: 1,
-        classRoom: { name: "A1" },
-        teacher: { user: { name: "Sandi" } },
-        subject: { name: "Matematika" },
-        session: { id: 1, start_time: "08:00", end_time: "09:30" },
-    },
-    {
-        id: 4,
-        day: "thursday",
-        class_room_id: 1,
-        subject_id: 1,
-        teacher_id: 1,
-        session_id: 1,
-        classRoom: { name: "A1" },
-        teacher: { user: { name: "Sandi" } },
-        subject: { name: "Matematika" },
-        session: { id: 1, start_time: "08:00", end_time: "09:30" },
-    },
-    {
-        id: 5,
-        day: "friday",
-        class_room_id: 1,
-        subject_id: 1,
-        teacher_id: 1,
-        session_id: 1,
-        classRoom: { name: "A1" },
-        teacher: { user: { name: "Sandi" } },
-        subject: { name: "Matematika" },
-        session: { id: 1, start_time: "08:00", end_time: "09:30" },
-    },
-    {
-        id: 6,
-        day: "saturday",
-        class_room_id: 1,
-        subject_id: 1,
-        teacher_id: 1,
-        session_id: 1,
-        classRoom: { name: "A1" },
-        teacher: { user: { name: "Sandi" } },
-        subject: { name: "Matematika" },
-        session: { id: 1, start_time: "08:00", end_time: "09:30" },
-    },
-    {
-        id: 7,
-        day: "monday",
-        class_room_id: 1,
-        subject_id: 2,
-        teacher_id: 2,
-        session_id: 2,
-        classRoom: { name: "A1" },
-        teacher: { user: { name: "Budi" } },
-        subject: { name: "Bahasa Inggris" },
-        session: { id: 2, start_time: "09:30", end_time: "11:00" },
-    },
-    {
-        id: 8,
-        day: "tuesday",
-        class_room_id: 1,
-        subject_id: 2,
-        teacher_id: 2,
-        session_id: 2,
-        classRoom: { name: "A1" },
-        teacher: { user: { name: "Budi" } },
-        subject: { name: "Bahasa Inggris" },
-        session: { id: 2, start_time: "09:30", end_time: "11:00" },
-    },
-    {
-        id: 9,
-        day: "wednesday",
-        class_room_id: 1,
-        subject_id: 2,
-        teacher_id: 2,
-        session_id: 2,
-        classRoom: { name: "A1" },
-        teacher: { user: { name: "Budi" } },
-        subject: { name: "Bahasa Inggris" },
-        session: { id: 2, start_time: "09:30", end_time: "11:00" },
-    },
-    {
-        id: 10,
-        day: "thursday",
-        class_room_id: 1,
-        subject_id: 3,
-        teacher_id: 3,
-        session_id: 3,
-        classRoom: { name: "A1" },
-        teacher: { user: { name: "Ani" } },
-        subject: { name: "IPA" },
-        session: { id: 3, start_time: "11:00", end_time: "12:30" },
-    },
-    {
-        id: 11,
-        day: "friday",
-        class_room_id: 1,
-        subject_id: 3,
-        teacher_id: 3,
-        session_id: 3,
-        classRoom: { name: "A1" },
-        teacher: { user: { name: "Ani" } },
-        subject: { name: "IPA" },
-        session: { id: 3, start_time: "11:00", end_time: "12:30" },
-    },
-];
-
 export default function DaftarSchedule() {
     const [currentWeek, setCurrentWeek] = useState(1);
     const [schedules, setSchedules] = useState<ScheduleApiRecord[]>([]);
@@ -197,20 +64,35 @@ export default function DaftarSchedule() {
     const [isAdmin, setIsAdmin] = useState(false);
     const [openSelectType, setOpenSelectType] = useState(false);
     const [openCreateDialog, setOpenCreateDialog] = useState(false);
+    const [editingSchedule, setEditingSchedule] = useState<ScheduleApiRecord | undefined>();
     const [selectedScheduleType, setSelectedScheduleType] = useState<"regular" | "private">(
         "regular"
     );
-    const [className, setClassName] = useState("A1");
+    const [classRooms, setClassRooms] = useState<ClassRoom[]>([]);
+    const [selectedClassId, setSelectedClassId] = useState<number>(0);
 
     const fetchSchedules = useCallback(async () => {
         setIsLoading(true);
 
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Use dummy data instead of API
-        setSchedules(DUMMY_SCHEDULES);
+        const endpoint = selectedClassId
+            ? `/admin/schedules?class_room_id=${selectedClassId}`
+            : '/admin/schedules';
+        const { data, error } = await apiRequest<ScheduleApiRecord[]>(endpoint);
+        if (error) {
+            toast.error('Gagal memuat jadwal', { description: error });
+            setSchedules([]);
+        } else {
+            setSchedules(Array.isArray(data) ? data : []);
+        }
         setIsLoading(false);
+    }, [selectedClassId]);
+
+    useEffect(() => {
+        apiRequest<{ data?: ClassRoom[] }>('/admin/classes').then(({ data }) => {
+            const rooms = Array.isArray(data) ? data : data?.data ?? [];
+            setClassRooms(rooms);
+            if (rooms.length > 0) setSelectedClassId(rooms[0].id);
+        });
     }, []);
 
     useEffect(() => {
@@ -257,6 +139,7 @@ export default function DaftarSchedule() {
         }
 
         setSelectedScheduleType(type);
+        setOpenSelectType(false);
         setOpenCreateDialog(true);
     };
 
@@ -268,15 +151,38 @@ export default function DaftarSchedule() {
         toast.info("Export belum tersedia", { description: "Endpoint export belum tersedia di backend." });
     };
 
+    const handleDelete = async (schedule: ScheduleApiRecord) => {
+        if (!window.confirm("Hapus jadwal ini?")) return;
+
+        const { error } = await apiRequest(`/admin/schedules/${schedule.id}`, { method: "DELETE" });
+        if (error) {
+            toast.error("Gagal menghapus jadwal", { description: error });
+            return;
+        }
+
+        toast.success("Jadwal berhasil dihapus");
+        await fetchSchedules();
+    };
+
     return (
         <section className="min-h-[calc(100vh-7rem)] bg-[#f0f0f0] px-12 py-6">
             <div className="mx-auto w-full max-w-7xl">
 
                 <div className="mb-6 flex items-center justify-between">
                     <div>
-                        <p className="text-sm text-slate-600">Jadwal Pelajaran/Kelas {className}</p>
+                        <label className="mb-2 block text-sm text-slate-600">Ruang Kelas
+                            <select
+                                value={selectedClassId}
+                                onChange={(event) => setSelectedClassId(Number(event.target.value))}
+                                className="ml-3 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
+                                title="Pilih ruang kelas"
+                            >
+                                <option value={0}>Semua kelas</option>
+                                {classRooms.map((room) => <option key={room.id} value={room.id}>{room.name}</option>)}
+                            </select>
+                        </label>
                         <h1 className="text-4xl font-bold text-slate-900">
-                            Jadwal <span className="text-primary">Kelas {className}</span>
+                            Jadwal <span className="text-primary">{classRooms.find((room) => room.id === selectedClassId)?.name ?? "Kelas"}</span>
                         </h1>
                     </div>
 
@@ -291,7 +197,15 @@ export default function DaftarSchedule() {
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setOpenSelectType(true)}
+                                onClick={() => {
+                                    const firstSchedule = schedules[0];
+                                    if (firstSchedule) {
+                                        setEditingSchedule(firstSchedule);
+                                        setOpenCreateDialog(true);
+                                    } else {
+                                        toast.info('Belum ada jadwal untuk diedit');
+                                    }
+                                }}
                                 className="flex items-center gap-2 rounded-full bg-primary px-6 py-2 text-sm font-medium text-white transition hover:bg-primary/90">
                                 <MdEdit className="text-lg" />
                                 Edit
@@ -370,15 +284,29 @@ export default function DaftarSchedule() {
                                                             key={`${sessionId}-${day}`}
                                                             className="border border-slate-300 p-3 text-center">
                                                             {schedule ? (
-                                                                <div className="rounded-lg bg-blue-100 p-3">
-                                                                    <div className="font-medium text-blue-900">
-                                                                        {schedule.subject?.name}
-                                                                    </div>
-                                                                    {schedule.subject && (
-                                                                        <div className="text-xs text-blue-700">
-                                                                            Bpk. {schedule.teacher?.user?.name}
+                                                                <div className="rounded-lg bg-blue-100 p-3 text-left">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            setEditingSchedule(schedule);
+                                                                            setOpenCreateDialog(true);
+                                                                        }}
+                                                                        className="w-full text-left transition hover:text-blue-700">
+                                                                        <div className="font-medium text-blue-900">
+                                                                            {schedule.subject?.name}
                                                                         </div>
-                                                                    )}
+                                                                        {schedule.subject && (
+                                                                            <div className="text-xs text-blue-700">
+                                                                                {schedule.teacher?.user?.name}
+                                                                            </div>
+                                                                        )}
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleDelete(schedule)}
+                                                                        className="mt-2 text-xs font-medium text-red-600 hover:text-red-800">
+                                                                        Hapus
+                                                                    </button>
                                                                 </div>
                                                             ) : (
                                                                 <span className="text-slate-400">-</span>
@@ -407,9 +335,13 @@ export default function DaftarSchedule() {
             {isAdmin && (
                 <DialogCreateSchedule
                     open={openCreateDialog}
-                    onClose={() => setOpenCreateDialog(false)}
+                    onClose={() => {
+                        setOpenCreateDialog(false);
+                        setEditingSchedule(undefined);
+                    }}
                     onSuccess={fetchSchedules}
                     scheduleType={selectedScheduleType}
+                    schedule={editingSchedule}
                 />
             )}
         </section>

@@ -37,7 +37,7 @@ export default function DaftarKelasManagement() {
     const fetchKelas = useCallback(async () => {
         setIsLoading(true);
         try {
-            const { data, error } = await apiRequest('/subjects'); // Ganti endpoint jika berbeda
+            const { data, error } = await apiRequest('/admin/classes');
 
             if (error) {
                 toast.error('Gagal mengambil data kelas', { description: error });
@@ -67,6 +67,10 @@ export default function DaftarKelasManagement() {
     const handleOpenCreate = () => {
         setDialogState(prev => ({ ...prev, create: true }));
     };
+
+    const handleCloseCreate = useCallback(() => {
+        setDialogState(prev => ({ ...prev, create: false }));
+    }, []);
 
     const handleOpenUpdate = (kelas: any) => {
         setDialogState(prev => ({
@@ -282,11 +286,13 @@ export default function DaftarKelasManagement() {
             </div>
 
             {/* Dialogs */}
-            <DialogCreateKelas
-                open={dialogState.create}
-                onClose={() => setDialogState(prev => ({ ...prev, create: false }))}
-                refetch={fetchKelas}
-            />
+            {dialogState.create && (
+                <DialogCreateKelas
+                    open={dialogState.create}
+                    onClose={handleCloseCreate}
+                    refetch={fetchKelas}
+                />
+            )}
             <DialogUpdateKelas
                 open={dialogState.update}
                 onClose={() => setDialogState(prev => ({ ...prev, update: false, currentData: undefined }))}

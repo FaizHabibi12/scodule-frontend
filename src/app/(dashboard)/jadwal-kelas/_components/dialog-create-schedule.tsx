@@ -4,6 +4,14 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { apiRequest } from "@/src/lib/api-client";
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const EMPTY_FORM: ScheduleFormData = {
+    class_room_id: 0,
+    subject_id: 0,
+    teacher_id: 0,
+    sub_subject_id: null,
+    session_id: 0,
+    day: "",
+};
 
 export type ScheduleFormData = {
     class_room_id: number;
@@ -50,6 +58,7 @@ interface DialogCreateScheduleProps {
     onClose: () => void;
     onSuccess: () => void;
     scheduleType: "regular" | "private";
+    schedule?: ScheduleFormData & { id: number };
 }
 
 export default function DialogCreateSchedule({
@@ -57,15 +66,9 @@ export default function DialogCreateSchedule({
     onClose,
     onSuccess,
     scheduleType,
+    schedule,
 }: DialogCreateScheduleProps) {
-    const [formData, setFormData] = useState<ScheduleFormData>({
-        class_room_id: 0,
-        subject_id: 0,
-        teacher_id: 0,
-        sub_subject_id: null,
-        session_id: 0,
-        day: "",
-    });
+    const [formData, setFormData] = useState<ScheduleFormData>(EMPTY_FORM);
 
     const [classRooms, setClassRooms] = useState<ClassRoom[]>([]);
     const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -78,14 +81,21 @@ export default function DialogCreateSchedule({
     useEffect(() => {
         if (open) {
             fetchInitialData();
+            if (schedule) {
+                setFormData(schedule);
+                fetchTeachersBySubject(schedule.subject_id, true);
+                fetchSubSubjectsBySubject(schedule.subject_id, true);
+            } else {
+                setFormData(EMPTY_FORM);
+            }
         }
-    }, [open]);
+    }, [open, schedule]);
 
     const fetchInitialData = async () => {
         setIsLoading(true);
         try {
             const [classRoomsRes, subjectsRes, sessionsRes] = await Promise.all([
-                apiRequest("/admin/class-rooms"),
+                apiRequest("/admin/classes"),
                 apiRequest("/subjects"),
                 apiRequest("/sessions"),
             ]);
@@ -120,26 +130,30 @@ export default function DialogCreateSchedule({
         }
     };
 
-    const fetchTeachersBySubject = async (subjectId: number) => {
+    const fetchTeachersBySubject = async (subjectId: number, preserveSelection = false) => {
         try {
-            const { data, error } = await apiRequest(`/admin/teachers/subject/${subjectId}`);
+            const { data, error } = await apiRequest(`/admin/subjects/${subjectId}/teachers`);
 
             if (!error && data?.data) {
                 setTeachers(Array.isArray(data.data) ? data.data : data.data.data || []);
-                setFormData((prev: ScheduleFormData) => ({ ...prev, teacher_id: 0 }));
+                if (!preserveSelection) {
+                    setFormData((prev: ScheduleFormData) => ({ ...prev, teacher_id: 0 }));
+                }
             }
         } catch (error) {
             toast.error("Gagal memuat data guru");
         }
     };
 
-    const fetchSubSubjectsBySubject = async (subjectId: number) => {
+    const fetchSubSubjectsBySubject = async (subjectId: number, preserveSelection = false) => {
         try {
-            const { data, error } = await apiRequest(`/subjects/${subjectId}/sub-subjects`);
+            const { data, error } = await apiRequest(`/admin/subjects/${subjectId}/sub-subjects`);
 
             if (!error && data?.data) {
                 setSubSubjects(Array.isArray(data.data) ? data.data : data.data.data || []);
-                setFormData((prev: ScheduleFormData) => ({ ...prev, sub_subject_id: null }));
+                if (!preserveSelection) {
+                    setFormData((prev: ScheduleFormData) => ({ ...prev, sub_subject_id: null }));
+                }
             }
         } catch (error) {
             toast.error("Gagal memuat sub-mapel");
@@ -192,8 +206,8 @@ export default function DialogCreateSchedule({
 
         setIsSubmitting(true);
         try {
-            const { error } = await apiRequest("/admin/schedules", {
-                method: "POST",
+            const { error } = await apiRequest(schedule ? `/admin/schedules/${schedule.id}` : "/admin/schedules", {
+                method: schedule ? "PUT" : "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -207,15 +221,8 @@ export default function DialogCreateSchedule({
                 return;
             }
 
-            toast.success("Jadwal berhasil dibuat");
-            setFormData({
-                class_room_id: 0,
-                subject_id: 0,
-                teacher_id: 0,
-                sub_subject_id: null,
-                session_id: 0,
-                day: "",
-            });
+            toast.success(schedule ? "Jadwal berhasil diperbarui" : "Jadwal berhasil dibuat");
+            setFormData(EMPTY_FORM);
             onSuccess();
             onClose();
         } catch (error) {
@@ -389,7 +396,7 @@ export default function DialogCreateSchedule({
                                 disabled={isSubmitting}
                                 className="flex-1 rounded-2xl bg-baseBlue px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
                             >
-                                {isSubmitting ? "Membuat..." : "Buat Jadwal"}
+                                {isSubmitting ? "Menyimpan..." : schedule ? "Simpan Perubahan" : "Buat Jadwal"}
                             </button>
                         </div>
                     </form>
