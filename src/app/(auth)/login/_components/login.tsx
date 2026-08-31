@@ -19,9 +19,11 @@ function SubmitButton() {
             disabled={pending}
             className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#f2944d] text-base font-semibold text-white transition hover:bg-[#eb8738] disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer">
             {pending ? "Memproses..." : "Lanjut"}
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white">
-                <IoIosArrowForward className="text-primary ml-0.5" />
-            </span>
+            {pending ?
+                null
+                : <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white">
+                    <IoIosArrowForward className="text-primary ml-0.5" />
+                </span>}
         </button>
     );
 }

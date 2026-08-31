@@ -142,7 +142,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 <Image src="/union.svg" alt="Logo" width={280} height={40} className={` ${isOpen ? "" : "hidden"}`} />
             </div>
 
-            <div className={`justify-between pb-4 pt-4 ${isOpen ? "px-5 overflow-auto mt-20" : "px-2"}`}>
+            <div className={`justify-between pb-4 pt-4 mt-12 ${isOpen ? "px-5 overflow-auto mt-20" : "px-2"}`}>
                 <div className="min-h-0">
                     {isOpen && <p className="px-3 text-sm text-slate-500 transition-opacity duration-300">Menu Utama</p>}
                     <div className="mt-3 space-y-1">

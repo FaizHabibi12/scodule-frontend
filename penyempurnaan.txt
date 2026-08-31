@@ -1,0 +1,8 @@
+1. untuk yang jadwal menampilkan jadwal pada biasanya dan WEEK 1 sampai 4 itu bisa di berfungsi dan tambahkan bulan tahun dan tanggal di database dan ditampilkan di jadwal kelas supaya mudah dipahami .
+2. untuk yang kolom pencarian yang ada di daftar-kelas, daftar-mapel, daftar-user bisa menggunakan debounce. 
+3. buatkan untuk yang dashboard teacher yang bisa diakses oleh teacher, lalu menampilkan info pelajaran yang diajarkan sesuai dengan user_id dan info info lainnya layaknya dashboard teacher.
+4. jadwal pelajaran yang ada hanya menampilkan pelajaran dan hari yang sudah di buat oleh super admin ke teacher.
+5. buatkan fitur untuk teacher untuk menolak jadwal tersebut yang nantinya akan terhubung langsung oleh super admin jika teacher menolak jadwal yang sudah di buat admin.
+6. jika teacher menolak jadwal maka admin bisa tahu dan buatkan fitur untuk mengganti langsung pengajar yang tersedia.
+7. untuk create mapel pada bagian sub mapel bisa lebih dari satu untuk dipilih dan nantinya bisa ditampilkan melalui jadwal kelas.
+8. fix kan untuk yang pada dashboard admin pada jadwal terbaru (data diambil langsung dari database) mengapa tidak menampilkan kelas bisa di betulkan.

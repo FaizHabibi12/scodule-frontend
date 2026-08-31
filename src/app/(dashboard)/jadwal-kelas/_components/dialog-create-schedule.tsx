@@ -394,7 +394,7 @@ export default function DialogCreateSchedule({
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="flex-1 rounded-2xl bg-baseBlue px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+                                className="flex-1 rounded-2xl bg-primary hover:bg-primary/90 hover:cursor-pointer px-4 py-2.5 text-sm font-medium text-white transition disabled:opacity-50"
                             >
                                 {isSubmitting ? "Menyimpan..." : schedule ? "Simpan Perubahan" : "Buat Jadwal"}
                             </button>

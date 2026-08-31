@@ -64,15 +64,15 @@ export const SIDEBAR_MENU_LIST = {
     ],
     teacher: [
         {
-            title: 'Jadwal Kelas',
-            url: '/jadwal-kelas',
-            icon: LuChartPie,
-        },
-        {
             title: 'Dashboard',
             url: '/teacher/dashboard',
             icon: LuLayoutDashboard,
             exact: true,
+        },
+        {
+            title: 'Jadwal Kelas',
+            url: '/jadwal-kelas',
+            icon: LuCalendarCheck,
         },
     ],
 };

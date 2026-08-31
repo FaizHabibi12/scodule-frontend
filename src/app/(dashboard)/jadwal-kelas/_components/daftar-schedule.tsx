@@ -7,6 +7,7 @@ import { FiPlus } from "react-icons/fi";
 import DialogSelectScheduleType from "./dialog-select-schedule-type";
 import DialogCreateSchedule from "./dialog-create-schedule";
 import { apiRequest } from "@/src/lib/api-client";
+import { ConfirmButton } from "@/utils/confirm-dialog";
 
 type ScheduleApiRecord = {
     id: number;
@@ -301,12 +302,10 @@ export default function DaftarSchedule() {
                                                                             </div>
                                                                         )}
                                                                     </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => handleDelete(schedule)}
-                                                                        className="mt-2 text-xs font-medium text-red-600 hover:text-red-800">
+                                                                    <ConfirmButton onConfirm={() => handleDelete(schedule)}>
                                                                         Hapus
-                                                                    </button>
+                                                                    </ConfirmButton>
+
                                                                 </div>
                                                             ) : (
                                                                 <span className="text-slate-400">-</span>
