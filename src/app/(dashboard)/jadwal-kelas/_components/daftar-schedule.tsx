@@ -355,6 +355,12 @@ export default function DaftarSchedule() {
                                                                                 {new Date(schedule.schedule_date).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}
                                                                             </div>
                                                                         )}
+                                                                        {schedule.status === "rejected" && (
+                                                                            <div className="mt-2 rounded-lg bg-red-50 px-2 py-1.5 text-[11px] text-red-700">
+                                                                                <strong>Guru reject pelajaran ini.</strong>
+                                                                                {schedule.reject_reason && <div>{schedule.reject_reason}</div>}
+                                                                            </div>
+                                                                        )}
                                                                         {(schedule.subSubjects && schedule.subSubjects.length > 0) && (
                                                                             <div className="mt-1 text-[10px] text-blue-800">
                                                                                 {schedule.subSubjects.map((item) => item.name).filter(Boolean).join(", ")}

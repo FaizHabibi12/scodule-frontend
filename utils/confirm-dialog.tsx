@@ -4,9 +4,19 @@ interface ConfirmButtonProps {
     onConfirm: () => void;
     children: React.ReactNode;
     className?: string;
+    title?: string;
+    description?: string;
+    confirmText?: string;
 }
 
-export const ConfirmButton = ({ onConfirm, children, className }: ConfirmButtonProps) => {
+export const ConfirmButton = ({
+    onConfirm,
+    children,
+    className,
+    title = "Hapus Jadwal Ini?",
+    description = "Tindakan ini tidak bisa dibatalkan.",
+    confirmText = "Hapus",
+}: ConfirmButtonProps) => {
     const [open, setOpen] = useState(false);
 
     return (
@@ -22,12 +32,8 @@ export const ConfirmButton = ({ onConfirm, children, className }: ConfirmButtonP
             {open && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
                     <div className="bg-white rounded-xl shadow-2xl p-6 w-[90%] max-w-sm text-center">
-                        <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                            Hapus Jadwal Ini?
-                        </h2>
-                        <p className="text-sm text-gray-500 mb-6">
-                            Tindakan ini tidak bisa dibatalkan.
-                        </p>
+                        <h2 className="text-lg font-semibold text-gray-800 mb-4">{title}</h2>
+                        <p className="text-sm text-gray-500 mb-6">{description}</p>
                         <div className="flex gap-4 justify-center">
                             <button
                                 onClick={() => setOpen(false)}
@@ -42,7 +48,7 @@ export const ConfirmButton = ({ onConfirm, children, className }: ConfirmButtonP
                                 }}
                                 className="px-4 py-2 rounded-full bg-primary text-white hover:bg-primary/80 cursor-pointer transition"
                             >
-                                Hapus
+                                {confirmText}
                             </button>
                         </div>
                     </div>

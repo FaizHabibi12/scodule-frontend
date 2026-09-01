@@ -36,6 +36,9 @@ export default function DashboardPage() {
     const [teacher, setTeacher] = useState<any>(null);
     const [schedules, setSchedules] = useState<TeacherDashboardSchedule[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [rejectingSchedule, setRejectingSchedule] = useState<TeacherDashboardSchedule | null>(null);
+    const [rejectReason, setRejectReason] = useState("");
+    const [isRejecting, setIsRejecting] = useState(false);
 
     const fetchTeacherDashboard = useCallback(async () => {
         setIsLoading(true);
@@ -68,24 +71,26 @@ export default function DashboardPage() {
         hariIni: teacher?.user?.name ? "Hari ini" : "-",
     }), [schedules, teacher]);
 
-    const handleRejectSchedule = async (scheduleId: number) => {
-        const reason = window.prompt("Masukkan alasan penolakan jadwal (opsional):", "Jadwal ditolak oleh guru.");
-        if (reason === null) {
-            return;
-        }
+    const handleRejectSchedule = async () => {
+        if (!rejectingSchedule) return;
 
-        const { error } = await apiRequest(`/teacher/schedules/${scheduleId}/reject`, {
+        setIsRejecting(true);
+        const { error } = await apiRequest(`/teacher/schedules/${rejectingSchedule.id}/reject`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ reject_reason: reason || "Jadwal ditolak oleh guru." }),
+            body: JSON.stringify({ reject_reason: rejectReason.trim() || "Jadwal ditolak oleh guru." }),
         });
 
         if (error) {
             toast.error("Gagal menolak jadwal", { description: error });
+            setIsRejecting(false);
             return;
         }
 
         toast.success("Jadwal berhasil ditolak");
+        setRejectingSchedule(null);
+        setRejectReason("");
+        setIsRejecting(false);
         await fetchTeacherDashboard();
     };
 
@@ -194,7 +199,10 @@ export default function DashboardPage() {
                                                 {schedule.status !== "rejected" && (
                                                     <button
                                                         type="button"
-                                                        onClick={() => handleRejectSchedule(schedule.id)}
+                                                        onClick={() => {
+                                                            setRejectingSchedule(schedule);
+                                                            setRejectReason("");
+                                                        }}
                                                         className="rounded-full border border-red-200 bg-red-50 px-2 py-1 text-[11px] font-medium text-red-700 transition hover:bg-red-100"
                                                     >
                                                         Tolak
@@ -212,6 +220,36 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </div>
+            {rejectingSchedule && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
+                    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+                        <h2 className="text-xl font-semibold text-slate-900">Tolak jadwal pelajaran?</h2>
+                        <p className="mt-2 text-sm text-slate-500">
+                            Jelaskan alasan agar admin dapat segera menindaklanjuti jadwal ini.
+                        </p>
+                        <textarea
+                            value={rejectReason}
+                            onChange={(event) => setRejectReason(event.target.value)}
+                            placeholder="Contoh: Saya berhalangan pada tanggal tersebut."
+                            rows={4}
+                            className="mt-4 w-full resize-none rounded-2xl border border-slate-200 p-3 text-sm outline-none focus:border-primary"
+                        />
+                        <div className="mt-5 flex justify-end gap-3">
+                            <button type="button" onClick={() => setRejectingSchedule(null)} className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200">
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleRejectSchedule}
+                                disabled={isRejecting}
+                                className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50"
+                            >
+                                {isRejecting ? "Mengirim..." : "Konfirmasi Tolak"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }
