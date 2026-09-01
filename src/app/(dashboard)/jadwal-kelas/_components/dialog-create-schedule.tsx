@@ -4,13 +4,18 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { apiRequest } from "@/src/lib/api-client";
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const TODAY = new Date().toISOString().slice(0, 10);
 const EMPTY_FORM: ScheduleFormData = {
     class_room_id: 0,
     subject_id: 0,
     teacher_id: 0,
     sub_subject_id: null,
+    sub_subject_ids: [],
     session_id: 0,
     day: "",
+    schedule_date: TODAY,
+    week_number: 1,
+    status: "active",
 };
 
 export type ScheduleFormData = {
@@ -18,8 +23,13 @@ export type ScheduleFormData = {
     subject_id: number;
     teacher_id: number;
     sub_subject_id?: number | null;
+    sub_subject_ids?: number[];
     session_id: number;
     day: string;
+    schedule_date?: string;
+    week_number?: number;
+    status?: string;
+    reject_reason?: string | null;
 };
 
 export type ClassRoom = {
@@ -152,7 +162,11 @@ export default function DialogCreateSchedule({
             if (!error && data?.data) {
                 setSubSubjects(Array.isArray(data.data) ? data.data : data.data.data || []);
                 if (!preserveSelection) {
-                    setFormData((prev: ScheduleFormData) => ({ ...prev, sub_subject_id: null }));
+                    setFormData((prev: ScheduleFormData) => ({
+                        ...prev,
+                        sub_subject_id: null,
+                        sub_subject_ids: [],
+                    }));
                 }
             }
         } catch (error) {
@@ -162,7 +176,12 @@ export default function DialogCreateSchedule({
 
     const handleSubjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const subjectId = Number(e.target.value);
-        setFormData((prev: ScheduleFormData) => ({ ...prev, subject_id: subjectId }));
+        setFormData((prev: ScheduleFormData) => ({
+            ...prev,
+            subject_id: subjectId,
+            sub_subject_id: null,
+            sub_subject_ids: [],
+        }));
 
         if (subjectId) {
             fetchTeachersBySubject(subjectId);
@@ -173,10 +192,36 @@ export default function DialogCreateSchedule({
         }
     };
 
+    const toggleSubSubject = (subSubjectId: number) => {
+        setFormData((prev: ScheduleFormData) => {
+            const selectedIds = prev.sub_subject_ids ?? [];
+            const nextIds = selectedIds.includes(subSubjectId)
+                ? selectedIds.filter((id) => id !== subSubjectId)
+                : [...selectedIds, subSubjectId];
+
+            return {
+                ...prev,
+                sub_subject_ids: nextIds,
+                sub_subject_id: nextIds[0] ?? null,
+            };
+        });
+    };
+
     const handleInputChange = (
         e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
     ) => {
         const { name, value } = e.target;
+
+        if (name === "sub_subject_ids") {
+            const selectedValues = Array.from((e.target as HTMLSelectElement).selectedOptions).map((option) => Number(option.value));
+            setFormData((prev: ScheduleFormData) => ({
+                ...prev,
+                sub_subject_ids: selectedValues,
+                sub_subject_id: selectedValues[0] ?? null,
+            }));
+            return;
+        }
+
         setFormData((prev: ScheduleFormData) => ({
             ...prev,
             [name]:
@@ -184,7 +229,7 @@ export default function DialogCreateSchedule({
                     ? value
                         ? Number(value)
                         : null
-                    : name.includes("id")
+                    : name.includes("id") || name === "week_number"
                         ? Number(value)
                         : value,
         }));
@@ -198,11 +243,19 @@ export default function DialogCreateSchedule({
             !formData.subject_id ||
             !formData.teacher_id ||
             !formData.session_id ||
-            !formData.day
+            !formData.day ||
+            !formData.schedule_date
         ) {
             toast.error("Semua field wajib diisi");
             return;
         }
+
+        const payload = {
+            ...formData,
+            sub_subject_ids: formData.sub_subject_ids ?? (formData.sub_subject_id ? [formData.sub_subject_id] : []),
+            week_number: formData.week_number ?? 1,
+            schedule_date: formData.schedule_date,
+        };
 
         setIsSubmitting(true);
         try {
@@ -211,7 +264,7 @@ export default function DialogCreateSchedule({
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
             });
 
             if (error) {
@@ -323,19 +376,53 @@ export default function DialogCreateSchedule({
                                 <label className="mb-2 block text-sm font-medium text-slate-700">
                                     Sub Mapel (Opsional)
                                 </label>
-                                <select
-                                    name="sub_subject_id"
-                                    value={formData.sub_subject_id || ""}
+                                <div className="max-h-28 space-y-2 overflow-y-auto rounded-2xl border border-[#d9d9d9] bg-white p-3">
+                                    {!formData.subject_id ? (
+                                        <p className="text-sm text-slate-400">Pilih mapel terlebih dahulu</p>
+                                    ) : subSubjects.length === 0 ? (
+                                        <p className="text-sm text-slate-400">Tidak ada sub mapel</p>
+                                    ) : (
+                                        subSubjects.map((subSubject) => (
+                                            <label key={subSubject.id} className="flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formData.sub_subject_ids?.includes(subSubject.id) ?? false}
+                                                    onChange={() => toggleSubSubject(subSubject.id)}
+                                                    className="h-4 w-4 accent-primary"
+                                                />
+                                                {subSubject.name}
+                                            </label>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-slate-700">
+                                    Tanggal Jadwal
+                                </label>
+                                <input
+                                    type="date"
+                                    name="schedule_date"
+                                    value={formData.schedule_date ?? TODAY}
                                     onChange={handleInputChange}
-                                    disabled={!formData.subject_id}
-                                    title="Pilih sub mapel"
-                                    className="h-11 w-full rounded-2xl border border-[#d9d9d9] bg-white px-4 text-sm outline-none focus:border-baseBlue disabled:bg-slate-100"
+                                    required
+                                    className="h-11 w-full rounded-2xl border border-[#d9d9d9] bg-white px-4 text-sm outline-none focus:border-baseBlue"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-slate-700">
+                                    Week
+                                </label>
+                                <select
+                                    name="week_number"
+                                    value={formData.week_number ?? 1}
+                                    onChange={handleInputChange}
+                                    className="h-11 w-full rounded-2xl border border-[#d9d9d9] bg-white px-4 text-sm outline-none focus:border-baseBlue"
                                 >
-                                    <option value="">Pilih Sub Mapel</option>
-                                    {subSubjects.map((subSubject) => (
-                                        <option key={subSubject.id} value={subSubject.id}>
-                                            {subSubject.name}
-                                        </option>
+                                    {[1, 2, 3, 4].map((week) => (
+                                        <option key={week} value={week}>Week {week}</option>
                                     ))}
                                 </select>
                             </div>

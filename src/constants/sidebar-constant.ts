@@ -65,7 +65,7 @@ export const SIDEBAR_MENU_LIST = {
     teacher: [
         {
             title: 'Dashboard',
-            url: '/teacher/dashboard',
+            url: '/teacher',
             icon: LuLayoutDashboard,
             exact: true,
         },

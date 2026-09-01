@@ -5,4 +5,4 @@
 5. buatkan fitur untuk teacher untuk menolak jadwal tersebut yang nantinya akan terhubung langsung oleh super admin jika teacher menolak jadwal yang sudah di buat admin.
 6. jika teacher menolak jadwal maka admin bisa tahu dan buatkan fitur untuk mengganti langsung pengajar yang tersedia.
 7. untuk create mapel pada bagian sub mapel bisa lebih dari satu untuk dipilih dan nantinya bisa ditampilkan melalui jadwal kelas.
-8. fix kan untuk yang pada dashboard admin pada jadwal terbaru (data diambil langsung dari database) mengapa tidak menampilkan kelas bisa di betulkan.
+8. fix kan untuk yang pada dashboard admin pada jadwal terbaru (data diambil langsung dari database) mengapa tidak menampilkan kelas, bisa di betulkan.

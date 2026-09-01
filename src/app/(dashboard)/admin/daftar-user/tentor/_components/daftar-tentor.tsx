@@ -116,9 +116,16 @@ export default function DaftarTentorManagement() {
         setCurrentPage(page);
     };
 
+    useEffect(() => {
+        const timeout = window.setTimeout(() => {
+            setCurrentPage(1);
+        }, 200);
+
+        return () => window.clearTimeout(timeout);
+    }, [searchQuery]);
+
     const handleSearchChange = (value: string) => {
         setSearchQuery(value);
-        setCurrentPage(1);
     };
 
     const handleSkillChange = (value: string) => {

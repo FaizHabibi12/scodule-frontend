@@ -110,9 +110,16 @@ export default function DaftarUserManagement() {
         setCurrentPage(page);
     };
 
+    useEffect(() => {
+        const timeout = window.setTimeout(() => {
+            setCurrentPage(1);
+        }, 250);
+
+        return () => window.clearTimeout(timeout);
+    }, [searchQuery]);
+
     const handleSearchChange = (value: string) => {
         setSearchQuery(value);
-        setCurrentPage(1);
     };
 
     const handleImportClick = () => {

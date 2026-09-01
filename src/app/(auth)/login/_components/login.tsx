@@ -40,7 +40,14 @@ export default function LoginPage() {
             hasRedirected.current = true;
             toast.success("Login berhasil");
             redirectTimeoutRef.current = setTimeout(() => {
-                router.push("/admin");
+                const roleCookie = document.cookie
+                    .split(";")
+                    .map((cookie) => cookie.trim())
+                    .find((cookie) => cookie.startsWith("user_role="))
+                    ?.split("=")[1];
+                const role = roleCookie ? decodeURIComponent(roleCookie) : "";
+
+                router.push(role === "admin" ? "/admin" : "/teacher");
             }, 1000);
         }
 

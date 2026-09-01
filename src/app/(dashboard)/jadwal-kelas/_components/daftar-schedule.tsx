@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { MdEdit, MdDownload } from "react-icons/md";
+import { MdDeleteOutline, MdEdit, MdDownload } from "react-icons/md";
 import { FiPlus } from "react-icons/fi";
 import DialogSelectScheduleType from "./dialog-select-schedule-type";
-import DialogCreateSchedule from "./dialog-create-schedule";
+import DialogCreateSchedule, { type ScheduleFormData } from "./dialog-create-schedule";
 import { apiRequest } from "@/src/lib/api-client";
 import { ConfirmButton } from "@/utils/confirm-dialog";
 
@@ -16,6 +16,13 @@ type ScheduleApiRecord = {
     subject_id: number;
     teacher_id: number;
     sub_subject_id?: number;
+    sub_subject_ids?: number[];
+    schedule_date?: string | null;
+    week_number?: number | null;
+    month?: number | null;
+    year?: number | null;
+    status?: string | null;
+    reject_reason?: string | null;
     session_id: number;
     classRoom?: {
         name: string;
@@ -31,6 +38,7 @@ type ScheduleApiRecord = {
     subSubject?: {
         name: string;
     };
+    subSubjects?: Array<{ name?: string }>;
     session?: {
         start_time: string;
         end_time: string;
@@ -58,14 +66,34 @@ const DAYS_DISPLAY: Record<string, string> = {
 
 const WEEKS = [1, 2, 3, 4];
 
+const normalizeScheduleForForm = (schedule: ScheduleApiRecord): ScheduleFormData & { id: number } => ({
+    id: schedule.id,
+    class_room_id: schedule.class_room_id,
+    subject_id: schedule.subject_id,
+    teacher_id: schedule.teacher_id,
+    sub_subject_id: schedule.sub_subject_id ?? null,
+    sub_subject_ids: schedule.sub_subject_ids ?? (schedule.sub_subject_id ? [schedule.sub_subject_id] : []),
+    session_id: schedule.session_id,
+    day: schedule.day,
+    schedule_date: schedule.schedule_date ?? undefined,
+    week_number: schedule.week_number ?? 1,
+    status: schedule.status ?? 'active',
+    reject_reason: schedule.reject_reason ?? null,
+});
+
 export default function DaftarSchedule() {
     const [currentWeek, setCurrentWeek] = useState(1);
     const [schedules, setSchedules] = useState<ScheduleApiRecord[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [role, setRole] = useState<string | null>(null);
+    const isAdmin = role === "admin";
+    const isTeacher = role === "teacher";
     const [openSelectType, setOpenSelectType] = useState(false);
     const [openCreateDialog, setOpenCreateDialog] = useState(false);
-    const [editingSchedule, setEditingSchedule] = useState<ScheduleApiRecord | undefined>();
+    const [openEditWeekDialog, setOpenEditWeekDialog] = useState(false);
+    const [editWeek, setEditWeek] = useState(1);
+    const [editClassId, setEditClassId] = useState(0);
+    const [editingSchedule, setEditingSchedule] = useState<(ScheduleFormData & { id: number }) | undefined>();
     const [selectedScheduleType, setSelectedScheduleType] = useState<"regular" | "private">(
         "regular"
     );
@@ -73,32 +101,36 @@ export default function DaftarSchedule() {
     const [selectedClassId, setSelectedClassId] = useState<number>(0);
 
     const fetchSchedules = useCallback(async () => {
+        if (!role) return;
+
         setIsLoading(true);
 
-        const endpoint = selectedClassId
-            ? `/admin/schedules?class_room_id=${selectedClassId}`
-            : '/admin/schedules';
+        const endpoint = isTeacher
+            ? '/teacher/schedules'
+            : selectedClassId
+                ? `/admin/schedules?class_room_id=${selectedClassId}`
+                : '/admin/schedules';
         const { data, error } = await apiRequest<ScheduleApiRecord[]>(endpoint);
         if (error) {
             toast.error('Gagal memuat jadwal', { description: error });
             setSchedules([]);
         } else {
-            setSchedules(Array.isArray(data) ? data : []);
+            const loadedSchedules = Array.isArray(data) ? data : [];
+            setSchedules(loadedSchedules);
+
+            if (isTeacher) {
+                const today = new Date().toISOString().slice(0, 10);
+                const hasTeachingToday = loadedSchedules.some(
+                    (schedule) => schedule.schedule_date?.slice(0, 10) === today
+                );
+
+                if (!hasTeachingToday) {
+                    toast.info('Tidak jadwal pelajaran hari ini', { description: 'Anda tidak memiliki jadwal mengajar untuk hari ini.' });
+                }
+            }
         }
         setIsLoading(false);
-    }, [selectedClassId]);
-
-    useEffect(() => {
-        apiRequest<{ data?: ClassRoom[] }>('/admin/classes').then(({ data }) => {
-            const rooms = Array.isArray(data) ? data : data?.data ?? [];
-            setClassRooms(rooms);
-            if (rooms.length > 0) setSelectedClassId(rooms[0].id);
-        });
-    }, []);
-
-    useEffect(() => {
-        fetchSchedules();
-    }, [fetchSchedules]);
+    }, [isTeacher, role, selectedClassId]);
 
     useEffect(() => {
         const roleCookie = document.cookie
@@ -107,12 +139,28 @@ export default function DaftarSchedule() {
             .find((cookie) => cookie.startsWith("user_role="))
             ?.split("=")[1];
 
-        const role = roleCookie ? decodeURIComponent(roleCookie) : "";
-        setIsAdmin(role === "admin");
+        setRole(roleCookie ? decodeURIComponent(roleCookie) : "");
     }, []);
 
-    // Group schedules by session and day
-    const scheduleGrid: ScheduleGrid = schedules.reduce((acc, schedule) => {
+    useEffect(() => {
+        if (!isAdmin) return;
+
+        apiRequest<{ data?: ClassRoom[] }>('/admin/classes').then(({ data }) => {
+            const rooms = Array.isArray(data) ? data : data?.data ?? [];
+            setClassRooms(rooms);
+            if (rooms.length > 0) setSelectedClassId(rooms[0].id);
+        });
+    }, [isAdmin]);
+
+    useEffect(() => {
+        fetchSchedules();
+    }, [fetchSchedules]);
+
+    const filteredSchedules = schedules.filter(
+        (schedule) => Number(schedule.week_number) === currentWeek
+    );
+
+    const scheduleGrid: ScheduleGrid = filteredSchedules.reduce((acc, schedule) => {
         const sessionId = schedule.session_id;
         if (!acc[sessionId]) {
             acc[sessionId] = {};
@@ -153,8 +201,6 @@ export default function DaftarSchedule() {
     };
 
     const handleDelete = async (schedule: ScheduleApiRecord) => {
-        if (!window.confirm("Hapus jadwal ini?")) return;
-
         const { error } = await apiRequest(`/admin/schedules/${schedule.id}`, { method: "DELETE" });
         if (error) {
             toast.error("Gagal menghapus jadwal", { description: error });
@@ -172,15 +218,17 @@ export default function DaftarSchedule() {
                 <div className="mb-6 flex items-center justify-between">
                     <div>
                         <label className="mb-2 block text-sm text-slate-600">Ruang Kelas
-                            <select
-                                value={selectedClassId}
-                                onChange={(event) => setSelectedClassId(Number(event.target.value))}
-                                className="ml-3 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
-                                title="Pilih ruang kelas"
-                            >
-                                <option value={0}>Semua kelas</option>
-                                {classRooms.map((room) => <option key={room.id} value={room.id}>{room.name}</option>)}
-                            </select>
+                            {isAdmin && (
+                                <select
+                                    value={selectedClassId}
+                                    onChange={(event) => setSelectedClassId(Number(event.target.value))}
+                                    className="ml-3 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
+                                    title="Pilih ruang kelas"
+                                >
+                                    <option value={0}>Semua kelas</option>
+                                    {classRooms.map((room) => <option key={room.id} value={room.id}>{room.name}</option>)}
+                                </select>
+                            )}
                         </label>
                         <h1 className="text-4xl font-bold text-slate-900">
                             Jadwal <span className="text-primary">{classRooms.find((room) => room.id === selectedClassId)?.name ?? "Kelas"}</span>
@@ -199,13 +247,9 @@ export default function DaftarSchedule() {
                             <button
                                 type="button"
                                 onClick={() => {
-                                    const firstSchedule = schedules[0];
-                                    if (firstSchedule) {
-                                        setEditingSchedule(firstSchedule);
-                                        setOpenCreateDialog(true);
-                                    } else {
-                                        toast.info('Belum ada jadwal untuk diedit');
-                                    }
+                                    setEditWeek(currentWeek);
+                                    setEditClassId(selectedClassId);
+                                    setOpenEditWeekDialog(true);
                                 }}
                                 className="flex items-center gap-2 rounded-full bg-primary px-6 py-2 text-sm font-medium text-white transition hover:bg-primary/90">
                                 <MdEdit className="text-lg" />
@@ -233,7 +277,7 @@ export default function DaftarSchedule() {
                                     onClick={() => setCurrentWeek(week)}
                                     className={`rounded-xl w-full py-4 font-normal text-lg transition ${currentWeek === week
                                         ? "bg-primary text-white"
-                                        : "bg-orange-100 text-primary"
+                                        : "bg-primary/10 text-primary"
                                         }`}>
                                     Week {week}
                                 </button>
@@ -242,10 +286,21 @@ export default function DaftarSchedule() {
                     </div>
 
 
+                    <div className="mb-4 flex items-center justify-between">
+                        <div className="text-sm text-slate-500">
+                            Week {currentWeek}
+                        </div>
+                        <div className="text-sm text-slate-500">
+                            {filteredSchedules.length} jadwal ditampilkan
+                        </div>
+                    </div>
+
                     {isLoading ? (
                         <div className="py-12 text-center text-slate-500">Memuat jadwal...</div>
                     ) : sessions.length === 0 ? (
-                        <div className="py-12 text-center text-slate-500">Tidak ada jadwal untuk kelas ini.</div>
+                        <div className="py-12 text-center text-slate-500">
+                            {isTeacher ? 'Tidak ada jadwal mengajar.' : 'Tidak ada jadwal untuk kelas ini.'}
+                        </div>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full border-collapse">
@@ -265,7 +320,7 @@ export default function DaftarSchedule() {
                                 </thead>
                                 <tbody>
                                     {sessions.map((sessionId) => {
-                                        const sessionSchedules = schedules.find(
+                                        const sessionSchedules = filteredSchedules.find(
                                             (s) => s.session_id === sessionId
                                         );
                                         const sessionLabel = sessionSchedules?.session
@@ -286,13 +341,7 @@ export default function DaftarSchedule() {
                                                             className="border border-slate-300 p-3 text-center">
                                                             {schedule ? (
                                                                 <div className="rounded-lg bg-blue-100 p-3 text-left">
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => {
-                                                                            setEditingSchedule(schedule);
-                                                                            setOpenCreateDialog(true);
-                                                                        }}
-                                                                        className="w-full text-left transition hover:text-blue-700">
+                                                                    <div className="w-full text-left">
                                                                         <div className="font-medium text-blue-900">
                                                                             {schedule.subject?.name}
                                                                         </div>
@@ -301,11 +350,17 @@ export default function DaftarSchedule() {
                                                                                 {schedule.teacher?.user?.name}
                                                                             </div>
                                                                         )}
-                                                                    </button>
-                                                                    <ConfirmButton onConfirm={() => handleDelete(schedule)}>
-                                                                        Hapus
-                                                                    </ConfirmButton>
-
+                                                                        {schedule.schedule_date && (
+                                                                            <div className="mt-1 text-[10px] text-blue-800">
+                                                                                {new Date(schedule.schedule_date).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}
+                                                                            </div>
+                                                                        )}
+                                                                        {(schedule.subSubjects && schedule.subSubjects.length > 0) && (
+                                                                            <div className="mt-1 text-[10px] text-blue-800">
+                                                                                {schedule.subSubjects.map((item) => item.name).filter(Boolean).join(", ")}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
                                                             ) : (
                                                                 <span className="text-slate-400">-</span>
@@ -322,6 +377,116 @@ export default function DaftarSchedule() {
                     )}
                 </div>
             </div>
+
+            {isAdmin && openEditWeekDialog && (
+                <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/60 p-4">
+                    <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl">
+                        <div className="mb-5 flex items-start justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-primary">Kelola jadwal</p>
+                                <h2 className="text-2xl font-bold text-slate-900">Pilih Week</h2>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setOpenEditWeekDialog(false)}
+                                className="text-2xl text-slate-400 transition hover:text-slate-700"
+                                aria-label="Tutup"
+                            >
+                                x
+                            </button>
+                        </div>
+
+                        <div className="mb-5 grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+                            <label className="text-sm font-medium text-slate-600">
+                                Kelas
+                                <select
+                                    value={editClassId}
+                                    onChange={(event) => {
+                                        const classId = Number(event.target.value);
+                                        setEditClassId(classId);
+                                        setSelectedClassId(classId);
+                                    }}
+                                    className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-primary"
+                                    title="Pilih kelas untuk dikelola"
+                                >
+                                    <option value={0}>Semua kelas</option>
+                                    {classRooms.map((room) => (
+                                        <option key={room.id} value={room.id}>{room.name}</option>
+                                    ))}
+                                </select>
+                            </label>
+                            <div className="grid grid-cols-4 gap-2 sm:min-w-84">
+                                {WEEKS.map((week) => (
+                                    <button
+                                        key={week}
+                                        type="button"
+                                        onClick={() => setEditWeek(week)}
+                                        className={`rounded-xl px-3 py-3 text-sm font-semibold transition ${editWeek === week
+                                            ? "bg-primary text-white shadow-lg shadow-primary/20"
+                                            : "bg-primary/10 text-primary hover:bg-primary/20"
+                                            }`}
+                                    >
+                                        Week {week}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="max-h-[50vh] space-y-3 overflow-y-auto">
+                            {schedules.filter((schedule) =>
+                                Number(schedule.week_number) === editWeek &&
+                                (!editClassId || schedule.class_room_id === editClassId)
+                            ).length === 0 ? (
+                                <p className="rounded-2xl bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+                                    Tidak ada jadwal pada Week {editWeek}.
+                                </p>
+                            ) : (
+                                schedules
+                                    .filter((schedule) =>
+                                        Number(schedule.week_number) === editWeek &&
+                                        (!editClassId || schedule.class_room_id === editClassId)
+                                    )
+                                    .map((schedule) => (
+                                        <div key={schedule.id} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                            <div>
+                                                <p className="font-semibold text-slate-900">{schedule.subject?.name ?? "Mata pelajaran"}</p>
+                                                <p className="text-sm text-slate-500">
+                                                    {schedule.classRoom?.name ?? "Kelas"} · {schedule.day} · {schedule.session?.start_time ?? "-"}
+                                                </p>
+                                                {schedule.schedule_date && (
+                                                    <p className="text-xs text-slate-400">
+                                                        {new Date(schedule.schedule_date).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <div className="flex shrink-0 items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setEditingSchedule(normalizeScheduleForForm(schedule));
+                                                        setOpenEditWeekDialog(false);
+                                                        setOpenCreateDialog(true);
+                                                    }}
+                                                    className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white transition hover:bg-primary/90"
+                                                >
+                                                    <MdEdit className="text-sm" />
+                                                    Edit
+                                                </button>
+                                                <ConfirmButton
+                                                    onConfirm={() => handleDelete(schedule)}
+                                                    className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-white px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                                                >
+                                                    <MdDeleteOutline className="text-base" />
+                                                    Hapus
+                                                </ConfirmButton>
+                                            </div>
+                                        </div>
+                                    ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {isAdmin && (
                 <DialogSelectScheduleType

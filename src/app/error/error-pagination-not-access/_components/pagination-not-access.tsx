@@ -1,3 +1,5 @@
+"use client"
+
 import Icon1 from "@/public/icon/Icon1-error-pagination-not-access.svg";
 import Icon2 from "@/public/icon/Icon2-error-pagination-not-access.svg";
 import Icon3 from "@/public/icon/Icon3-error-pagination-not-access.svg";
@@ -5,9 +7,26 @@ import ImageStatus from "@/public/icon/status-403.svg";
 import Link from "next/link";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { ImageWrapper } from "@/utils/image-wrapper";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 
 export default function ErrorPaginationNotAccess() {
+    const router = useRouter();
+    const [dashboardPath, setDashboardPath] = useState("/dashboard");
+
+    useEffect(() => {
+        const roleCookie = document.cookie
+            .split(";")
+            .map((cookie) => cookie.trim())
+            .find((cookie) => cookie.startsWith("user_role="))
+            ?.split("=")[1];
+        const role = roleCookie ? decodeURIComponent(roleCookie) : "";
+        const path = role === "admin" ? "/admin" : role === "teacher" ? "/teacher" : "/dashboard";
+
+        setDashboardPath(path);
+    }, []);
+
     return (
         <section>
             <div className="flex flex-col items-center justify-center min-h-screen gap-6">
@@ -46,7 +65,7 @@ export default function ErrorPaginationNotAccess() {
                         Harap kembali ke beranda kami, kami mohon maaf atas ketidaknyamanan ini.
                     </p>
                     <Link
-                        href="/dashboard"
+                        href={dashboardPath}
                         className="bg-primary text-white flex items-center py-2 px-4 rounded-full text-base gap-1.5">
                         Kembali ke Beranda
                         <FaArrowRightLong className="w-6 h-6" />

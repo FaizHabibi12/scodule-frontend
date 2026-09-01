@@ -15,14 +15,16 @@ const Search = ({ search, onSearchChange }: Props) => {
         setKeyword(search)
     }, [search])
 
-    const handleSearch = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key !== "Enter") return
+    useEffect(() => {
         const trimmedKeyword = keyword.trim()
         if (trimmedKeyword === search.trim()) return
-        if (onSearchChange) {
-            onSearchChange(trimmedKeyword)
-        }
-    }
+
+        const timeout = window.setTimeout(() => {
+            onSearchChange?.(trimmedKeyword)
+        }, 350)
+
+        return () => window.clearTimeout(timeout)
+    }, [keyword, onSearchChange, search])
 
     return (
         <input
@@ -32,7 +34,6 @@ const Search = ({ search, onSearchChange }: Props) => {
             onChange={(e) => setKeyword(e.target.value)}
             className="text-base rounded-2xl shadow w-full text-muted py-2.5 px-5 focus:outline-none bg-white"
             placeholder="Cari kelas..."
-            onKeyUp={handleSearch}
             aria-label="Cari"
         />
     )

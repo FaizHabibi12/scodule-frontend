@@ -3,9 +3,10 @@ import { useState } from "react";
 interface ConfirmButtonProps {
     onConfirm: () => void;
     children: React.ReactNode;
+    className?: string;
 }
 
-export const ConfirmButton = ({ onConfirm, children }: ConfirmButtonProps) => {
+export const ConfirmButton = ({ onConfirm, children, className }: ConfirmButtonProps) => {
     const [open, setOpen] = useState(false);
 
     return (
@@ -13,7 +14,7 @@ export const ConfirmButton = ({ onConfirm, children }: ConfirmButtonProps) => {
             <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="mt-2 text-xs font-medium text-red-600 hover:text-red-800 cursor-pointer"
+                className={className ?? "mt-2 text-xs font-medium text-red-600 hover:text-red-800 cursor-pointer"}
             >
                 {children}
             </button>

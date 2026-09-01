@@ -23,6 +23,7 @@ type DashboardSchedule = {
     id: number;
     day: string;
     classRoom?: { name: string };
+    class_room?: { name: string };
     subject?: { name: string };
     teacher?: { user?: { name: string } };
 };
@@ -83,7 +84,14 @@ export default function DashboardPage() {
             totalKelas: Array.isArray(classRes.data?.data) ? classRes.data.data.length : 0,
             totalSesi: Array.isArray(sessionRes.data?.data) ? sessionRes.data.data.length : 0,
         });
-        setSchedules(Array.isArray(scheduleRes.data) ? scheduleRes.data.slice(0, 8) : []);
+        const normalizedSchedules = Array.isArray(scheduleRes.data)
+            ? scheduleRes.data.slice(0, 8).map((schedule) => ({
+                ...schedule,
+                classRoom: schedule.classRoom ?? schedule.class_room ?? { name: '-' },
+            }))
+            : [];
+
+        setSchedules(normalizedSchedules);
         setIsLoading(false);
     }, []);
 
@@ -152,7 +160,7 @@ export default function DashboardPage() {
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-160 text-left text-sm">
                             <thead><tr className="border-b border-slate-200 text-slate-500"><th className="p-3 font-medium">Hari</th><th className="p-3 font-medium">Kelas</th><th className="p-3 font-medium">Mapel</th><th className="p-3 font-medium">Tentor</th></tr></thead>
-                            <tbody>{schedules.length === 0 ? <tr><td colSpan={4} className="p-6 text-center text-slate-400">Belum ada jadwal.</td></tr> : schedules.map((schedule) => <tr key={schedule.id} className="border-b border-slate-100 last:border-0"><td className="p-3 capitalize text-slate-600">{schedule.day}</td><td className="p-3 font-medium text-slate-800">{schedule.classRoom?.name ?? "-"}</td><td className="p-3 text-slate-600">{schedule.subject?.name ?? "-"}</td><td className="p-3 text-slate-600">{schedule.teacher?.user?.name ?? "-"}</td></tr>)}</tbody>
+                            <tbody>{schedules.length === 0 ? <tr><td colSpan={4} className="p-6 text-center text-slate-400">Belum ada jadwal.</td></tr> : schedules.map((schedule) => <tr key={schedule.id} className="border-b border-slate-100 last:border-0"><td className="p-3 capitalize text-slate-600">{schedule.day}</td><td className="p-3 font-medium text-slate-800">{schedule.classRoom?.name ?? schedule.class_room?.name ?? "-"}</td><td className="p-3 text-slate-600">{schedule.subject?.name ?? "-"}</td><td className="p-3 text-slate-600">{schedule.teacher?.user?.name ?? "-"}</td></tr>)}</tbody>
                         </table>
                     </div>
                 </div>
