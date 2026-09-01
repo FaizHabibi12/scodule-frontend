@@ -8,11 +8,9 @@ import Link from "next/link";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { ImageWrapper } from "@/utils/image-wrapper";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 
 export default function ErrorPaginationNotAccess() {
-    const router = useRouter();
     const [dashboardPath, setDashboardPath] = useState("/dashboard");
 
     useEffect(() => {
