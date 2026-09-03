@@ -221,7 +221,7 @@ export default function DaftarMapelManagement() {
                             return (
                                 <div
                                     key={subject.id}
-                                    className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow">
+                                    className="rounded-lg bg-white shadow transition-shadow hover:shadow-md">
                                     <div
                                         className="flex items-center justify-between px-6 py-4 cursor-pointer transition-colors"
                                         onClick={() => toggleExpanded(subject.id!)}>
@@ -245,7 +245,7 @@ export default function DaftarMapelManagement() {
                                     </div>
 
                                     {isExpanded && (
-                                        <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
+                                        <div className="border-t border-gray-200 bg-white px-6 py-4">
                                             {subject.sub_subjects && subject.sub_subjects.length > 0 ? (
                                                 <div>
                                                     <div className="mb-4 overflow-x-auto rounded-lg border border-gray-200 bg-white">
@@ -265,7 +265,7 @@ export default function DaftarMapelManagement() {
                                                                     <tr
                                                                         key={subSubject.id || index}
                                                                         className="odd:bg-white even:bg-[#25343F1A]">
-                                                                        <td className="px-4 py-3 text-sm font-normal text-foreground text-center">
+                                                                        <td className="px-4 py-3 text-center text-sm font-normal text-foreground">
                                                                             {String(index + 1).padStart(2, "0")}
                                                                         </td>
                                                                         <td className="px-4 py-3 text-sm font-normal text-foreground">
@@ -283,7 +283,7 @@ export default function DaftarMapelManagement() {
                                                                 e.stopPropagation();
                                                                 handleOpenUpdate(subject);
                                                             }}
-                                                            className="bg-white border text-primary border-primary py-2 px-4 rounded-full font-medium text-base flex items-center gap-2">
+                                                            className="flex items-center gap-2 rounded-full border border-primary bg-white px-4 py-2 text-base font-medium text-primary">
                                                             Edit Mapel
                                                             <RiEdit2Fill size={20} />
                                                         </button>
@@ -300,7 +300,7 @@ export default function DaftarMapelManagement() {
                                                                 e.stopPropagation();
                                                                 handleOpenUpdate(subject);
                                                             }}
-                                                            className="bg-white border text-primary border-primary py-2 px-4 rounded-full font-medium text-base flex items-center gap-2">
+                                                            className="flex items-center gap-2 rounded-full border border-primary bg-white px-4 py-2 text-base font-medium text-primary">
                                                             Edit Mapel
                                                             <RiEdit2Fill size={20} />
                                                         </button>

@@ -5,6 +5,7 @@ import { AVATAR_FRAME_CLASS, avatarUrl, useCurrentUser } from "./user-profile";
 
 export default function HeaderContent() {
     const { user } = useCurrentUser();
+
     return (
         <div className="flex min-h-24 w-full items-center justify-start bg-baseBlue py-4 pl-20 pr-4 sm:pr-6 md:h-28.75 md:pr-8 lg:px-8">
             <div className="flex min-w-0 items-center gap-3 sm:gap-5">

@@ -175,11 +175,11 @@ export default function DaftarKelasManagement() {
                         <table className="min-w-full border-separate border-spacing-0">
                             <thead className="bg-[#23323d] text-white">
                                 <tr>
-                                    <th className="px-3 py-4 border-r-4 text-sm text-center font-medium w-15">NO</th>
-                                    <th className="px-3 py-4 border-r-4 text-left text-sm font-medium">Nama Kelas</th>
-                                    <th className="px-3 py-4 border-r-4 text-left text-sm font-medium">Tipe Kelas</th>
-                                    <th className="px-3 py-4 border-r-4 text-left text-sm font-medium">Jumlah Siswa</th>
-                                    <th className="px-3 py-4 border-r-4 text-left text-sm font-medium w-20">Action</th>
+                                    <th className="px-3 py-4 border-r-2 text-sm text-center font-medium w-15">NO</th>
+                                    <th className="px-3 py-4 border-r-2 text-left text-sm font-medium">Nama Kelas</th>
+                                    <th className="px-3 py-4 border-r-2 text-left text-sm font-medium">Tipe Kelas</th>
+                                    <th className="px-3 py-4 border-r-2 text-left text-sm font-medium">Jumlah Siswa</th>
+                                    <th className="px-3 py-4 text-left text-sm font-medium w-20">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
@@ -200,30 +200,28 @@ export default function DaftarKelasManagement() {
                                 ) : (
                                     currentKelas.map((kelas, index) => (
                                         <tr key={kelas.id || index} className={index % 2 === 0 ? "bg-white" : "bg-[#25343F14]"}>
-                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-center" : "text-center border-r-4 border-white"}>
+                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-center" : "text-center border-r-2 border-white"}>
                                                 {String(startIndex + index + 1).padStart(2, "0")}
                                             </td>
-                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-left" : "text-left px-3 py-4 border-r-4 border-white"}>
+                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-left" : "text-left px-3 py-4 border-r-2 border-white"}>
                                                 {kelas.name || kelas.nama_kelas}
                                             </td>
-                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-left" : "text-left px-3 py-4 border-r-4 border-white"}>
+                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-left" : "text-left px-3 py-4 border-r-2 border-white"}>
                                                 {kelas.tipe_kelas || "Kelas Besar"}
                                             </td>
-                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-left" : "text-left px-3 py-4 border-r-4 border-white"}>
+                                            <td className={index % 2 === 0 ? "px-3 py-4 text-sm text-left" : "text-left px-3 py-4 border-r-2 border-white"}>
                                                 {kelas.jumlah_siswa || kelas.jumlah || 0}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex gap-2 justify-center">
                                                     <button
                                                         onClick={() => handleOpenUpdate(kelas)}
-                                                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-1.5 rounded-full text-sm font-medium transition-colors"
-                                                    >
+                                                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-1.5 rounded-full text-sm font-medium transition-colors">
                                                         Edit
                                                     </button>
                                                     <button
                                                         onClick={() => handleOpenDelete(kelas)}
-                                                        className="bg-red-500 hover:bg-red-600 text-white px-5 py-1.5 rounded-full text-sm font-medium transition-colors"
-                                                    >
+                                                        className="bg-red-500 hover:bg-red-600 text-white px-5 py-1.5 rounded-full text-sm font-medium transition-colors">
                                                         Hapus
                                                     </button>
                                                 </div>
@@ -240,8 +238,7 @@ export default function DaftarKelasManagement() {
                             title="Halaman sebelumnya"
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="flex h-12 w-12 items-center justify-center rounded-full bg-baseBlue text-white transition disabled:cursor-not-allowed disabled:opacity-40"
-                        >
+                            className="flex h-12 w-12 items-center justify-center rounded-full bg-baseBlue text-white transition disabled:cursor-not-allowed disabled:opacity-40">
                             <IoChevronBackOutline className="text-xl" />
                         </button>
 

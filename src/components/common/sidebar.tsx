@@ -56,7 +56,7 @@ function MenuItem({ label, icon, href, isActive = false, isCollapsed = false }: 
             href={href}
             title={isCollapsed ? label : undefined}
             aria-label={isCollapsed ? label : undefined}
-            className={`group relative flex w-full items-center rounded-xl px-3 py-2.5 text-left transition-all duration-300 ease-out ${isCollapsed ? "justify-center" : "gap-3"} ${isActive ? "bg-white/70 text-slate-700 shadow-[0_6px_18px_rgba(148,163,184,0.14)]" : "text-slate-500 hover:bg-white/50 hover:text-slate-700 hover:shadow-[0_6px_18px_rgba(148,163,184,0.1)]"}`}>
+            className={`group relative flex w-full items-center rounded-xl px-3 py-2.5 text-left transition-all duration-300 ease-out ${isCollapsed ? "justify-center" : "gap-3"} ${isActive ? "bg-white/70 text-slate-700 shadow-[0_6px_18px_rgba(148,163,184,0.14)]" : "text-slate-500 shadow-transparent hover:bg-white/70 hover:text-slate-700 hover:shadow-[0_8px_24px_rgba(37,52,63,0.16)]"}`}>
             <span className={`flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-300 ease-out ${isActive ? "bg-primary text-white shadow-[0_8px_20px_rgba(247,154,80,0.3)]" : "text-slate-500 group-hover:bg-white/70 group-hover:text-slate-700"}`}>{icon}</span>
             {!isCollapsed && <span className="grow text-[0.98rem] transition-all duration-300">{label}</span>}
             {isCollapsed && <HoverTooltip label={label} />}
@@ -174,7 +174,7 @@ export default function Sidebar({ isOpen, isMobile, onToggle }: SidebarProps) {
                                         <button
                                             type="button"
                                             onClick={() => setIsDaftarUserOpen((prev) => !prev)}
-                                            className={`group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-300 ease-out ${isActive ? "bg-white/70 text-slate-700 shadow-[0_6px_18px_rgba(148,163,184,0.14)]" : "text-slate-500 hover:bg-white/50 hover:text-slate-700 hover:shadow-[0_6px_18px_rgba(148,163,184,0.1)]"}`}>
+                                            className={`group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-300 ease-out ${isActive ? "bg-white/70 text-slate-700 shadow-[0_6px_18px_rgba(148,163,184,0.14)]" : "text-slate-500 shadow-transparent hover:bg-white/70 hover:text-slate-700 hover:shadow-[0_8px_24px_rgba(37,52,63,0.16)]"}`}>
                                             <span className={`flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-300 ease-out ${isActive ? "bg-primary text-white shadow-[0_8px_20px_rgba(247,154,80,0.3)]" : "text-slate-500 group-hover:bg-white/70 group-hover:text-slate-700"}`}>
                                                 <Icon size={18} />
                                             </span>
@@ -199,7 +199,7 @@ export default function Sidebar({ isOpen, isMobile, onToggle }: SidebarProps) {
                                                             <Link
                                                                 key={child.url}
                                                                 href={child.url}
-                                                                className={`block rounded-lg px-3 py-2 text-sm transition-all duration-200 ease-out ${isChildActive ? "bg-white/70 text-slate-700" : "text-slate-500 hover:bg-white/50 hover:text-slate-700"}`}>
+                                                                className={`block rounded-lg px-3 py-2 text-sm transition-all duration-200 ease-out ${isChildActive ? "bg-white/70 text-slate-700 shadow-[0_6px_18px_rgba(148,163,184,0.14)]" : "text-slate-500 hover:bg-white/70 hover:text-slate-700 hover:shadow-[0_6px_18px_rgba(37,52,63,0.16)]"}`}>
                                                                 {child.title}
                                                             </Link>
                                                         );
