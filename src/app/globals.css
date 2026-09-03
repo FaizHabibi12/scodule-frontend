@@ -3,6 +3,7 @@
 
 :root {
   --background: #EAEFEF;
+  --foreground: #18181B;
 }
 
 @theme inline {
@@ -14,14 +15,115 @@
   --color-baseBlue: #25343F;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground: ##EAEFEF;
-  }
+html.dark {
+  color-scheme: dark;
+  --background: #18181B;
+  --foreground: #FFFFFF;
+}
+
+html.dark .bg-white, html.dark .bg-\[\#ffffff\] { background-color: #27272A; }
+html.dark .bg-slate-50, html.dark .bg-\[\#eef0f0\], html.dark .bg-\[\#f0f0f0\] { background-color: #18181B; }
+html.dark .text-slate-900, html.dark .text-slate-800, html.dark .text-slate-700 { color: #F4F4F5; }
+html.dark .text-slate-600, html.dark .text-slate-500, html.dark .text-slate-400 { color: #A1A1AA; }
+html.dark .border-slate-200, html.dark .border-slate-300 { border-color: #52525B; }
+html.dark input, html.dark select, html.dark textarea { background-color: #3F3F46; color: #F4F4F5; }
+
+/* Keep body copy high-contrast; inputs retain a softer placeholder hierarchy. */
+body,
+body .text-slate-900,
+body .text-slate-800,
+body .text-slate-700,
+body .text-slate-600,
+body .text-slate-500,
+body .text-slate-400,
+body .text-gray-900,
+body .text-gray-700,
+body .text-gray-600,
+body .text-gray-500 {
+  color: #18181B;
+}
+
+input, select, textarea {
+  color: #18181B;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #71717B;
+  opacity: 0.8;
+}
+
+html.dark body,
+html.dark body .text-slate-900,
+html.dark body .text-slate-800,
+html.dark body .text-slate-700,
+html.dark body .text-slate-600,
+html.dark body .text-slate-500,
+html.dark body .text-slate-400,
+html.dark body .text-gray-900,
+html.dark body .text-gray-700,
+html.dark body .text-gray-600,
+html.dark body .text-gray-500 {
+  color: #F4F4F5;
+}
+
+html.dark input, html.dark select, html.dark textarea {
+  color: #F4F4F5;
+}
+
+html.dark input::placeholder, html.dark textarea::placeholder {
+  color: #A1A1AA;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: "General Sans", "Segoe UI", sans-serif;
+}
+
+html:not([data-theme-ready]) body {
+  visibility: hidden;
+}
+
+html[data-theme-ready] body {
+  visibility: visible;
+}
+
+@media (max-width: 1023px) {
+  .dashboard-main section {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+
+  .dashboard-main section {
+    max-width: 100%;
+  }
+
+  .dashboard-main table {
+    min-width: 42rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .dashboard-main section {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .dashboard-main h1 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  .dashboard-main h2 {
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  .dashboard-main .text-3xl {
+    font-size: 1.5rem;
+  }
+
+  .dashboard-main .text-4xl {
+    font-size: 1.75rem;
+  }
 }

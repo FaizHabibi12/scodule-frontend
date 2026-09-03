@@ -33,6 +33,7 @@ type SidebarMenu = {
 
 type SidebarProps = {
     isOpen: boolean;
+    isMobile: boolean;
     onToggle: () => void;
 };
 
@@ -63,7 +64,7 @@ function MenuItem({ label, icon, href, isActive = false, isCollapsed = false }: 
     );
 }
 
-export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
+export default function Sidebar({ isOpen, isMobile, onToggle }: SidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
     const [isLoggingOut, startLogoutTransition] = useTransition();
@@ -127,7 +128,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
     return (
         <aside
             id="sidenav-main"
-            className={`fixed inset-y-0 left-0 z-40 flex min-h-screen flex-col overflow-visible bg-[#ffffff] transition-all duration-300 ease-out ${isOpen ? "w-70" : "w-20"}`}>
+            className={`fixed inset-y-0 left-0 z-40 flex min-h-screen flex-col overflow-visible bg-[#ffffff] text-sm transition-all duration-300 ease-out ${isMobile ? `w-70 ${isOpen ? "translate-x-0" : "-translate-x-full"}` : isOpen ? "w-70" : "w-20"}`}>
             <div className={`relative w-full transition-all duration-300 ${isOpen ? "h-45" : "h-20"}`}>
                 <button
                     type="button"

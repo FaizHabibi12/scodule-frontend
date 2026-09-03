@@ -258,7 +258,7 @@ export default function DaftarTentorManagement() {
                 </div>
 
                 <div className="rounded-3xl bg-white p-2 shadow-[0_12px_40px_rgba(37,52,63,0.08)]">
-                    <div className="overflow-hidden rounded-[18px] border border-[#d9d9d9]">
+                    <div className="overflow-x-auto rounded-[18px] border border-[#d9d9d9]">
                         <table className="min-w-full border-separate border-spacing-0">
                             <thead>
                                 <tr className="bg-baseBlue text-white">

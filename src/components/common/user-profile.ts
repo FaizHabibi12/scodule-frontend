@@ -8,6 +8,7 @@ export type CurrentUser = {
     name: string;
     role: string;
     kode_user: string;
+    phone_number?: string | null;
     profile_photo?: string | null;
 };
 
@@ -20,7 +21,7 @@ export const AVATAR_OPTIONS = [
     "avatars/6.png",
 ] as const;
 
-export const AVATAR_FRAME_CLASS = "h-20 w-20 shrink-0 rounded-full object-contain";
+export const AVATAR_FRAME_CLASS = "h-15 w-15 shrink-0 rounded-full object-contain";
 
 const avatarSet = new Set<string>(AVATAR_OPTIONS);
 

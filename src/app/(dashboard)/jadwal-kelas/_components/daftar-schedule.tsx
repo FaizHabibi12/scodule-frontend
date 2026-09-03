@@ -215,7 +215,7 @@ export default function DaftarSchedule() {
         <section className="min-h-[calc(100vh-7rem)] bg-[#f0f0f0] px-12 py-6">
             <div className="mx-auto w-full max-w-7xl">
 
-                <div className="mb-6 flex items-center justify-between">
+                <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <label className="mb-2 block text-sm text-slate-600">Ruang Kelas
                             {isAdmin && (
@@ -230,17 +230,17 @@ export default function DaftarSchedule() {
                                 </select>
                             )}
                         </label>
-                        <h1 className="text-4xl font-bold text-slate-900">
+                        <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl">
                             Jadwal <span className="text-primary">{classRooms.find((room) => room.id === selectedClassId)?.name ?? "Kelas"}</span>
                         </h1>
                     </div>
 
                     {isAdmin && (
-                        <div className="flex gap-3">
+                        <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:gap-3">
                             <button
                                 type="button"
                                 onClick={handleCreateClick}
-                                className="flex items-center gap-2 rounded-full bg-primary px-6 py-2 text-sm font-medium text-white transition hover:bg-primary/90">
+                                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary/90 sm:flex-none sm:px-6">
                                 <FiPlus className="text-lg" />
                                 Create
                             </button>
@@ -251,14 +251,14 @@ export default function DaftarSchedule() {
                                     setEditClassId(selectedClassId);
                                     setOpenEditWeekDialog(true);
                                 }}
-                                className="flex items-center gap-2 rounded-full bg-primary px-6 py-2 text-sm font-medium text-white transition hover:bg-primary/90">
+                                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary/90 sm:flex-none sm:px-6">
                                 <MdEdit className="text-lg" />
                                 Edit
                             </button>
                             <button
                                 type="button"
                                 onClick={handleExport}
-                                className="flex items-center gap-2 rounded-full bg-primary px-6 py-2 text-sm font-medium text-white transition hover:bg-primary/90">
+                                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary/90 sm:flex-none sm:px-6">
                                 <MdDownload className="text-lg" />
                                 Export
                             </button>

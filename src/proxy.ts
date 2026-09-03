@@ -16,7 +16,7 @@ function getRoleFromProfileCookie(rawProfile?: string): string | null {
     }
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     if (pathname.startsWith(ADMIN_ROUTE_PREFIX)) {

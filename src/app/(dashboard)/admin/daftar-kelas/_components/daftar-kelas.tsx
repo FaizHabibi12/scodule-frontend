@@ -171,7 +171,7 @@ export default function DaftarKelasManagement() {
 
                 {/* Tabel */}
                 <div className="rounded-3xl bg-white p-3 shadow-[0_12px_40px_rgba(37,52,63,0.08)]">
-                    <div className="overflow-hidden rounded-[18px] border border-[#d9d9d9] bg-white">
+                    <div className="overflow-x-auto rounded-[18px] border border-[#d9d9d9] bg-white">
                         <table className="min-w-full border-separate border-spacing-0">
                             <thead className="bg-[#23323d] text-white">
                                 <tr>

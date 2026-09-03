@@ -189,10 +189,10 @@ export default function DaftarMapelManagement() {
                             <Search
                                 url="/dashboard/daftar-mapel"
                                 search={searchQuery}
-                                onSearchChange={handleSearch}/>
+                                onSearchChange={handleSearch} />
                             <CiSearch
                                 size={25}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted"/>
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted" />
                         </div>
                         <button
                             onClick={handleOpenCreate}
@@ -248,7 +248,7 @@ export default function DaftarMapelManagement() {
                                         <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
                                             {subject.sub_subjects && subject.sub_subjects.length > 0 ? (
                                                 <div>
-                                                    <div className="mb-4 bg-white rounded-lg overflow-hidden border border-gray-200">
+                                                    <div className="mb-4 overflow-x-auto rounded-lg border border-gray-200 bg-white">
                                                         <table className="min-w-full border-separate border-spacing-2">
                                                             <thead className="bg-baseBlue">
                                                                 <tr>
